@@ -84,16 +84,16 @@ O jogo segue um ciclo simples:
 ## 🧩 Funcionalidades
 
 - 🗺️ **Mundos Temáticos**  
-  4 mundos com 5 fases cada (20 fases)
+    1 mundo com 3 a 5 fases progressivas, focadas na introdução de conceitos básicos
 
 - 🧱 **Programação em Blocos**  
-  Interface visual com drag-and-drop (Blockly)
+  Interface visual com drag-and-drop utilizando Blockly para montagem de algoritmos simples
 
 - ⚡ **Execução em Tempo Real**  
-  O código vira ação instantaneamente
+  Conversão dos blocos em ações imediatas no jogo, permitindo feedback instantâneo
 
 - ⭐ **Sistema de Estrelas**  
-  Melhor eficiência = mais recompensas
+  Avaliação básica da solução (correta/incorreta ou até 3 níveis simples de desempenho)
 
 - 💾 **Salvamento Automático**  
   Uso de `localStorage` para progresso local
@@ -104,9 +104,9 @@ O jogo segue um ciclo simples:
 
 - **Engine de Jogo:** Phaser.js 3  
 - **Interface de Programação:** Google Blockly  
-- **Linguagem:** JavaScript (ES6+)  
+- **Linguagem:** JavaScript (ES6+) ( não confirmado )  
 - **Persistência:** localStorage  
-- **Hospedagem:** A definir  
+- **Hospedagem:** (A definir)  
 
 ---
 
@@ -134,10 +134,27 @@ Tudo de forma natural, progressiva e divertida.
     📁 assets/ → Imagens e sons (CC0) ( ainfa não implementado)
 
 ## 📅 Cronograma
-Abril/2026: Pré-produção e documentação
-Agosto/2026: Prova de conceito (Phaser + Blockly)
-Outubro/2026: MVP (Mundo 1 completo)
-Novembro/2026: Entrega final
+📌 Agosto/2026 — Prova de Conceito
+Integração inicial entre Phaser.js e Blockly
+Execução básica de comandos (ex: mover personagem)
+Estrutura inicial do projeto
+
+📌 Setembro/2026 — Desenvolvimento Base
+Implementação da interface de blocos funcional
+Criação da primeira fase jogável
+Sistema de execução dos blocos no jogo
+
+📌 Outubro/2026 — Expansão do MVP
+Desenvolvimento de 3 a 5 fases completas
+Introdução de loops e condicionais simples
+Implementação de feedback ao jogador
+Salvamento de progresso com localStorage
+
+📌 Novembro/2026 — Finalização
+Polimento geral (interface e experiência do usuário)
+Correção de bugs
+Testes finais
+Finalização da documentação do TCC
 
 ## 👨‍💻 Autor
 
