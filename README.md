@@ -1,61 +1,153 @@
-# CodeQuest — Aprenda a Programar Numa Aventura!
-O CodeQuest é um jogo web educacional desenvolvido para ensinar os fundamentos da programação a crianças de 6 a 11 anos. Através de uma interface visual de arrastar e soltar (drag-and-drop), o jogador guia o robô Bit por diversos desafios, estimulando o pensamento computacional de forma lúdica e acessível.
+# 🚀 CodeQuest — Aprenda a Programar Numa Aventura!
 
-🎯 Visão Geral
-O projeto surge para preencher a lacuna de ferramentas educacionais de programação que sejam 100% em português brasileiro e que não exijam instalação ou cadastros complexos.
+O **CodeQuest** é um jogo web educacional desenvolvido para ensinar os fundamentos da programação a crianças por meio de uma experiência interativa, visual e gamificada.
 
-Público-Alvo: Crianças do 1º ao 5º ano do Ensino Fundamental.
+Através de uma interface de blocos (drag-and-drop), o jogador guia o robô **Bit** por desafios, desenvolvendo o pensamento computacional de forma intuitiva e acessível.
 
-Objetivo Pedagógico: Ensinar sequenciamento, loops, condicionais e funções.
+---
 
-Diferencial: Experiência de "jogo real" com narrativa e progressão, focada na UX para crianças que ainda estão desenvolvendo a leitura.
+## 🎯 Visão Geral
 
-🛠️ Tecnologias Utilizadas
-Engine de Jogo: Phaser.js 3.
+O projeto surge para preencher a lacuna de ferramentas educacionais de programação que:
 
-Interface de Programação: Google Blockly.
+- Sejam **100% em português brasileiro**
+- Não exijam **instalação ou cadastros complexos**
+- Sejam **acessíveis para crianças em fase inicial de leitura**
 
-Linguagem: JavaScript (ES6+). (Possível mudança)
+---
 
-Persistência: localStorage para salvamento automático do progresso local.
+## ❗ O Problema
 
-Hospedagem: "A definir"
+O ensino de programação para crianças enfrenta desafios como:
 
-🎮 Gameplay e Mecânicas
-O jogo opera em um Core Loop simples: Ver a fase → Montar sequência de blocos → Executar → Ver o Bit agir → Ajustar.
+- Dificuldade com sintaxe textual
+- Ferramentas complexas ou em inglês
+- Baixo engajamento sem interatividade
 
-Mundos Temáticos: 4 mundos com 5 fases cada (20 fases no total).
+Além disso, muitas soluções atuais:
 
-Sistema de Estrelas: Recompensas baseadas na eficiência do código (menos blocos = mais estrelas).
+- Exigem instalação
+- Não são adaptadas ao público infantil
+- Não consideram limitações de leitura
 
-Feedback Imediato: O código é convertido em animações em tempo real, permitindo que o erro seja parte do aprendizado.
+---
 
-📂 Estrutura do Repositório
-📁 docs/: Documentação completa, incluindo o Game Design Document (GDD) e o Request for Comments (RFC).
+## 💡 A Solução
 
-📁 src/: Código-fonte da aplicação (em desenvolvimento).
+O **CodeQuest** resolve esse problema oferecendo:
 
-📁 assets/: Recursos visuais e sonoros com licenças abertas (CC0). (ainda não implementado)
+- Um ambiente **100% web**
+- Interface **visual baseada em blocos**
+- Aprendizado através de **jogo e experimentação**
 
-🚀 Como Executar
-O projeto foi desenhado para ser executado sem necessidade de compiladores ou servidores complexos.
+A lógica de programação deixa de ser abstrata e passa a ser **visual e prática**.
 
-Clone este repositório: git clone https://github.com/BrunoFranzosi230/CodeQuest.git
+---
 
-Abra o arquivo index.html em um navegador moderno (Chrome, Firefox ou Edge). (ainda não implementado)
+## 🎯 Objetivos
 
-📅 Cronograma
-Abril/2026: Pré-produção e documentação técnica.
+### Objetivo Geral
 
-Agosto/2026: Prova de Conceito (Integração Phaser + Blockly).
+Desenvolver um jogo educacional capaz de:
 
-Outubro/2026: Lançamento do MVP (Mundo 1 completo).
+- Ensinar lógica de programação de forma lúdica  
+- Estimular o pensamento computacional  
+- Promover aprendizado baseado em experimentação  
 
-Novembro/2026: Entrega final do projeto.
+### Objetivos Específicos
 
-👨‍💻 Autor
-Bruno Franzosi Engenharia de Software – Católica SC
+- Implementar interface com **Google Blockly**
+- Criar sistema de **fases progressivas**
+- Ensinar:
+  - Sequenciamento
+  - Loops
+  - Condicionais
+  - Funções
+- Fornecer **feedback imediato ao jogador**
+
+---
+
+## 🎮 Gameplay
+
+O jogo segue um ciclo simples:
+
+1. Ver o desafio  
+2. Montar os blocos  
+3. Executar o código  
+4. Observar o resultado  
+5. Ajustar a solução  
+
+➡️ Isso incentiva aprendizado por tentativa e erro.
+
+---
+
+## 🧩 Funcionalidades
+
+- 🗺️ **Mundos Temáticos**  
+  4 mundos com 5 fases cada (20 fases)
+
+- 🧱 **Programação em Blocos**  
+  Interface visual com drag-and-drop (Blockly)
+
+- ⚡ **Execução em Tempo Real**  
+  O código vira ação instantaneamente
+
+- ⭐ **Sistema de Estrelas**  
+  Melhor eficiência = mais recompensas
+
+- 💾 **Salvamento Automático**  
+  Uso de `localStorage` para progresso local
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Engine de Jogo:** Phaser.js 3  
+- **Interface de Programação:** Google Blockly  
+- **Linguagem:** JavaScript (ES6+)  
+- **Persistência:** localStorage  
+- **Hospedagem:** A definir  
+
+---
+
+## 👥 Público-Alvo
+
+Crianças do **1º ao 5º ano do Ensino Fundamental**
+
+---
+
+## 🧠 Visão do Sistema
+
+O **CodeQuest** integra aprendizado e entretenimento, permitindo que crianças desenvolvam habilidades de:
+
+- Lógica  
+- Resolução de problemas  
+- Pensamento computacional  
+
+Tudo de forma natural, progressiva e divertida.
+
+---
+
+## 📂 Estrutura do Projeto
+    📁 docs/ → Documentação (GDD, RFC)
+    📁 src/ → Código-fonte
+    📁 assets/ → Imagens e sons (CC0) ( ainfa não implementado)
+
+## 📅 Cronograma
+Abril/2026: Pré-produção e documentação
+Agosto/2026: Prova de conceito (Phaser + Blockly)
+Outubro/2026: MVP (Mundo 1 completo)
+Novembro/2026: Entrega final
+
+## 👨‍💻 Autor
+
+Bruno Franzosi
+Engenharia de Software – Católica SC
 
 📧 bruno.franzosi@catolica.edu.br
 
+## 💭 Filosofia
+
 "Aprender fazendo — o jogador descobre conceitos experimentando, não lendo."
+
+
