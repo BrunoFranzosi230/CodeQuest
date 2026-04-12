@@ -174,3 +174,6 @@ Minha sugestão de melhoria seria incluir um mapa visual de progresso, onde o jo
 
 ## Ramires Silva Paes 
 Minha sugestão de melhoria é um sistema de repetição de execução (Replay) é relevante permitir que o jogador visualize novamente a execução do seu código, possibilitando uma melhor análise do comportamento do personagem e dos erros cometidos.
+
+## Fernando Lucas Moraes da Luz
+Sugiro implementar uma funcionalidade que destaque visualmente blocos inválidos ou sequências incorretas antes da execução, ajudando o jogador a identificar problemas de lógica.
