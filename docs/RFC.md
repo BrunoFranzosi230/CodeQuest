@@ -380,11 +380,9 @@ Tela Inicial → Mapa de Mundos → Fase selecionada → Gameplay → Tela de Vi
 
 *(A ser preenchido pelos estrevistados)*
 
-**Avaliador 1:** Ramires Silva Paes 
-**Status:** [ ] Aprovado [X] Ajustar
 
-Observações:Sistema de Repetição de Execução (Replay):
-Uma melhoria relevante seria permitir que o jogador visualize novamente a execução do seu código, possibilitando uma melhor análise do comportamento do personagem e dos erros cometidos.
+**Avaliador 1:** __________________________
+**Status:** [ ] Aprovado [ ] Ajustar
 
 ---
 
