@@ -173,4 +173,4 @@ Engenharia de Software – Católica SC
 Minha sugestão de melhoria seria incluir um mapa visual de progresso, onde o jogador possa visualizar as fases concluídas e as próximas etapas, aumentando o engajamento.
 
 ## Ramires Silva Paes 
-Minha sujestão de melhoria é um sistema de repetição de execução (Replay) é relevante permitir que o jogador visualize novamente a execução do seu código, possibilitando uma melhor análise do comportamento do personagem e dos erros cometidos.
+Minha sugestão de melhoria é um sistema de repetição de execução (Replay) é relevante permitir que o jogador visualize novamente a execução do seu código, possibilitando uma melhor análise do comportamento do personagem e dos erros cometidos.
