@@ -168,6 +168,6 @@ Engenharia de Software – Católica SC
 "Aprender fazendo — o jogador descobre conceitos experimentando, não lendo."
 
 
-# ugestão de Melhoria (revisão por Pares)
+# Sugestão de Melhoria (revisão por Pares)
 ## Rafael
 Minha sugestão de melhoria seria incluir um mapa visual de progresso, onde o jogador possa visualizar as fases concluídas e as próximas etapas, aumentando o engajamento.
