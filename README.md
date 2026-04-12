@@ -1,4 +1,4 @@
-# 🚀 CodeQuest — Aprenda a Programar Numa Aventura!
+<img width="1413" height="760" alt="image" src="https://github.com/user-attachments/assets/d6f3c82a-8548-49d5-92c1-d42ce8f53737" /># 🚀 CodeQuest — Aprenda a Programar Numa Aventura!
 
 O **CodeQuest** é um jogo web educacional desenvolvido para ensinar os fundamentos da programação a crianças por meio de uma experiência interativa, visual e gamificada.
 
@@ -168,3 +168,6 @@ Engenharia de Software – Católica SC
 "Aprender fazendo — o jogador descobre conceitos experimentando, não lendo."
 
 
+#Sugestão de Melhoria (revisão por Pares)
+## Rafael
+Minha sugestão de melhoria seria incluir um mapa visual de progresso, onde o jogador possa visualizar as fases concluídas e as próximas etapas, aumentando o engajamento.
