@@ -1,4 +1,4 @@
-🚀 CodeQuest — Aprenda a Programar Numa Aventura!
+#🚀 CodeQuest — Aprenda a Programar Numa Aventura!
 
 O **CodeQuest** é um jogo web educacional desenvolvido para ensinar os fundamentos da programação a crianças por meio de uma experiência interativa, visual e gamificada.
 
