@@ -177,3 +177,7 @@ Minha sugestão de melhoria é um sistema de repetição de execução (Replay) 
 
 ## Fernando Lucas Moraes da Luz
 Sugiro implementar uma funcionalidade que destaque visualmente blocos inválidos ou sequências incorretas antes da execução, ajudando o jogador a identificar problemas de lógica.
+
+## Bruno Luis Pereira
+Minha sugestão  implementar um sistema de dicas que analise a sequência de blocos montada pelo jogador e forneça sugestões quando ele estiver travado, auxiliando no aprendizado sem entregar diretamente a solução.
+
