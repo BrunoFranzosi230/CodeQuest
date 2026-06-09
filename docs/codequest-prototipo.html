@@ -291,8 +291,8 @@
       <div class="panel-label">BLOCOS</div>
       <div class="block b-blue"   draggable="true" data-cmd="Mover →"  onclick="addBlock('Mover →','b-blue')">Mover →</div>
       <div class="block b-blue"   draggable="true" data-cmd="Mover ←"  onclick="addBlock('Mover ←','b-blue')">Mover ←</div>
-      <div class="block b-purple" draggable="true" data-cmd="Girar ↑"  onclick="addBlock('Girar ↑','b-purple')">Girar ↑</div>
-      <div class="block b-purple" draggable="true" data-cmd="Girar ↓"  onclick="addBlock('Girar ↓','b-purple')">Girar ↓</div>
+      <div class="block b-purple" draggable="true" data-cmd="Cima ↑"  onclick="addBlock('Cima ↑','b-purple')">Cima ↑</div>
+      <div class="block b-purple" draggable="true" data-cmd="Baixo ↓"  onclick="addBlock('Baixo ↓','b-purple')">Baixo ↓</div>
       <div class="block b-orange" draggable="true" data-cmd="Repetir"  onclick="addBlock('Repetir ⟳','b-orange')">Repetir ⟳</div>
       <div class="block b-red"    draggable="true" data-cmd="Se/Senão" onclick="addBlock('Se/Senão','b-red')">Se/Senão</div>
       <div class="block b-teal"   draggable="true" data-cmd="Função"   onclick="addBlock('Função ⊕','b-teal')">Função ⊕</div>
@@ -417,7 +417,7 @@ const floorCells = new Set([
 
 /* ── Sequence ── */
 let sequence = [];
-const SEQ_CLASSES = {'Mover →':'b-blue','Mover ←':'b-blue','Girar ↑':'b-purple','Girar ↓':'b-purple','Repetir ⟳':'b-orange','Se/Senão':'b-red','Função ⊕':'b-teal'};
+const SEQ_CLASSES = {'Mover →':'b-blue','Mover ←':'b-blue','Cima ↑':'b-purple','Baixo ↓':'b-purple','Repetir ⟳':'b-orange','Se/Senão':'b-red','Função ⊕':'b-teal'};
 
 function addBlock(cmd, cls) {
   if (sequence.length >= 8) return;
@@ -478,8 +478,8 @@ function executeSequence() {
     const cmd = sequence[step].cmd;
     if (cmd === 'Mover →') bitPos.col = Math.min(bitPos.col + 1, COLS-1);
     if (cmd === 'Mover ←') bitPos.col = Math.max(bitPos.col - 1, 0);
-    if (cmd === 'Girar ↑') bitPos.row = Math.max(bitPos.row - 1, 0);
-    if (cmd === 'Girar ↓') bitPos.row = Math.min(bitPos.row + 1, ROWS-1);
+    if (cmd === 'Cima ↑') bitPos.row = Math.max(bitPos.row - 1, 0);
+    if (cmd === 'Baixo ↓') bitPos.row = Math.min(bitPos.row + 1, ROWS-1);
     moveBit();
 
     // check key pickup
