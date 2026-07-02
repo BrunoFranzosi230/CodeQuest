@@ -185,3 +185,6 @@ Minha sugestão  implementar um sistema de dicas que analise a sequência de blo
 ## Ramires Silva Paes
 Li o GDD do CodeQuest e achei o conceito muito bem elaborado. Gostei especialmente de como a progressão dos mundos foi estruturada — cada um introduz um conceito de programação diferente (sequência, loop, condicional e função) de forma gradual e coerente. O sistema de dica após três tentativas também é uma boa solução para reduzir a frustração sem eliminar o desafio. Fico curioso para ver o protótipo funcionando.
 
+## Fernando Lucas Moraes da Luz
+
+
