@@ -181,3 +181,6 @@ Sugiro implementar uma funcionalidade que destaque visualmente blocos inválidos
 ## Bruno Luis Pereira
 Minha sugestão  implementar um sistema de dicas que analise a sequência de blocos montada pelo jogador e forneça sugestões quando ele estiver travado, auxiliando no aprendizado sem entregar diretamente a solução.
 
+# Comentários 
+## Ramires Silva Paes: 
+
