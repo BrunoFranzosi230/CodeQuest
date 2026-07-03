@@ -176,7 +176,8 @@ Minha sugestão de melhoria seria incluir um mapa visual de progresso, onde o jo
 Minha sugestão de melhoria é um sistema de repetição de execução (Replay) é relevante permitir que o jogador visualize novamente a execução do seu código, possibilitando uma melhor análise do comportamento do personagem e dos erros cometidos.
 
 ## Fernando Lucas Moraes da Luz
-Sugiro implementar uma funcionalidade que destaque visualmente blocos inválidos ou sequências incorretas antes da execução, ajudando o jogador a identificar problemas de lógica.
+* Sugiro implementar uma funcionalidade que destaque visualmente blocos inválidos ou sequências incorretas antes da execução, ajudando o jogador a identificar problemas de lógica.
+*  Olá! Dei uma olhada no repositório do CodeQuest novamente e queria comentar. Gostei bastante da forma como o problema foi definido no README — a falta de ferramentas de programação totalmente em português e acessíveis para crianças pequenas é um ponto que realmente faz diferença. A filosofia citada no final, “aprender fazendo”, resume bem a proposta do projeto. Também achei interessante ver que já há sugestões de outros colegas registradas no repositório, isso mostra que o projeto está sendo construído de forma colaborativa. Parabéns pelo andamento até aqui.
 
 ## Bruno Luis Pereira
 Minha sugestão  implementar um sistema de dicas que analise a sequência de blocos montada pelo jogador e forneça sugestões quando ele estiver travado, auxiliando no aprendizado sem entregar diretamente a solução.
