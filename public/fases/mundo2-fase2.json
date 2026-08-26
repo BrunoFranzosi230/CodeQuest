@@ -1,0 +1,44 @@
+{
+  "id": "mundo2-fase2",
+  "nome": "A Volta do Quadrado",
+  "mundo": 2,
+  "conceito": "loop",
+  "minBlocos": 4,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 2,
+    "lin": 2,
+    "orientacao": "direita"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,4,0,0,0,0,1],
+    [1,0,2,0,3,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 4,
+    "lin": 3
+  },
+  "posicaoSaida": {
+    "col": 2,
+    "lin": 3
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir",
+    "repetir"
+  ],
+  "fala": "Andar, andar, virar... tudo de novo!",
+  "dica": "Repita 4 vezes: andar, andar, virar à direita.",
+  "sequenciaIdeal": [
+    "repetir(4){andar,andar,virar_dir}"
+  ]
+}

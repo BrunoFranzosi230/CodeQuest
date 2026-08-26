@@ -1,0 +1,44 @@
+{
+  "id": "mundo2-fase1",
+  "nome": "De Novo e De Novo",
+  "mundo": 2,
+  "conceito": "loop",
+  "minBlocos": 2,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 1,
+    "lin": 3,
+    "orientacao": "direita"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,4,0,0,0,3,2,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 5,
+    "lin": 3
+  },
+  "posicaoSaida": {
+    "col": 6,
+    "lin": 3
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir",
+    "repetir"
+  ],
+  "fala": "Em vez de 5 blocos ANDAR, use o REPETIR!",
+  "dica": "Coloque um ANDAR dentro do REPETIR e escolha 5 vezes.",
+  "sequenciaIdeal": [
+    "repetir(5){andar}"
+  ]
+}

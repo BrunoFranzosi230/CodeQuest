@@ -1,0 +1,54 @@
+{
+  "id": "mundo1-fase4",
+  "nome": "A Grande Volta",
+  "mundo": 1,
+  "conceito": "sequencia",
+  "minBlocos": 12,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 1,
+    "lin": 4,
+    "orientacao": "cima"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,0,0,3,0,0,1,1],
+    [1,0,1,1,1,0,0,1],
+    [1,0,1,1,1,0,0,1],
+    [1,4,0,0,0,2,1,1],
+    [1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 3,
+    "lin": 1
+  },
+  "posicaoSaida": {
+    "col": 5,
+    "lin": 4
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir"
+  ],
+  "fala": "Este caminho dá uma volta enorme!",
+  "dica": "Suba até o topo, vire à direita e siga até a parede.",
+  "sequenciaIdeal": [
+    "andar",
+    "andar",
+    "andar",
+    "virar_dir",
+    "andar",
+    "andar",
+    "andar",
+    "andar",
+    "virar_dir",
+    "andar",
+    "andar",
+    "andar"
+  ]
+}

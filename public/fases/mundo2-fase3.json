@@ -1,0 +1,44 @@
+{
+  "id": "mundo2-fase3",
+  "nome": "A Escada",
+  "mundo": 2,
+  "conceito": "loop",
+  "minBlocos": 5,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 1,
+    "lin": 1,
+    "orientacao": "direita"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,4,0,1,1,1,1,1],
+    [1,1,0,0,1,1,1,1],
+    [1,1,1,0,0,1,1,1],
+    [1,1,1,1,3,0,1,1],
+    [1,1,1,1,1,2,1,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 4,
+    "lin": 4
+  },
+  "posicaoSaida": {
+    "col": 5,
+    "lin": 5
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir",
+    "repetir"
+  ],
+  "fala": "Cada degrau é igualzinho ao outro!",
+  "dica": "Repita 4 vezes: andar, virar à direita, andar, virar à esquerda.",
+  "sequenciaIdeal": [
+    "repetir(4){andar,virar_dir,andar,virar_esq}"
+  ]
+}

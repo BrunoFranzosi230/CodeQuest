@@ -1,0 +1,45 @@
+{
+  "id": "mundo3-fase2",
+  "nome": "Se Bater, Vire",
+  "mundo": 3,
+  "conceito": "condicional",
+  "minBlocos": 4,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 1,
+    "lin": 1,
+    "orientacao": "direita"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,4,0,3,0,0,1,1],
+    [1,1,1,1,1,0,1,1],
+    [1,1,1,1,1,0,1,1],
+    [1,1,1,1,1,0,1,1],
+    [1,1,1,1,1,2,1,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 3,
+    "lin": 1
+  },
+  "posicaoSaida": {
+    "col": 5,
+    "lin": 5
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir",
+    "repetir_ate",
+    "se"
+  ],
+  "fala": "Se der pra andar, eu ando. Se não der, eu viro!",
+  "dica": "Dentro do \"repetir até chegar\": SE dá pra andar → Andar; se não → Virar à direita.",
+  "sequenciaIdeal": [
+    "repetir_ate{se{andar}senao{virar_dir}}"
+  ]
+}

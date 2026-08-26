@@ -1,0 +1,46 @@
+{
+  "id": "mundo1-fase1",
+  "nome": "Primeiros Passos",
+  "mundo": 1,
+  "conceito": "sequencia",
+  "minBlocos": 4,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 1,
+    "lin": 3,
+    "orientacao": "direita"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,4,0,3,0,2,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 3,
+    "lin": 3
+  },
+  "posicaoSaida": {
+    "col": 5,
+    "lin": 3
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir"
+  ],
+  "fala": "Toque em ANDAR para eu me mexer!",
+  "dica": "Use o bloco ANDAR quatro vezes seguidas.",
+  "sequenciaIdeal": [
+    "andar",
+    "andar",
+    "andar",
+    "andar"
+  ]
+}

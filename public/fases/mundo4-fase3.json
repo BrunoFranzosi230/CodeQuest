@@ -1,0 +1,53 @@
+{
+  "id": "mundo4-fase3",
+  "nome": "A Grande Cidade",
+  "mundo": 4,
+  "conceito": "funcao",
+  "minBlocos": 7,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 1,
+    "lin": 1,
+    "orientacao": "direita"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,4,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,0,3,0,0,0,1],
+    [1,2,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 3,
+    "lin": 3
+  },
+  "posicaoSaida": {
+    "col": 1,
+    "lin": 4
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir",
+    "repetir",
+    "funcao"
+  ],
+  "fala": "Truque, um passinho, e o truque duas vezes!",
+  "dica": "Truque: Andar, Andar, Virar à direita. Programa: truque, andar, truque, truque.",
+  "sequenciaIdeal": [
+    "funcao",
+    "andar",
+    "funcao",
+    "funcao"
+  ],
+  "truqueIdeal": [
+    "andar",
+    "andar",
+    "virar_dir"
+  ]
+}

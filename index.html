@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="CodeQuest — jogo web educacional de programação em blocos para crianças de 6 a 11 anos." />
+  <meta name="author" content="Bruno Franzosi" />
+  <meta name="theme-color" content="#7DD3FC" />
+  <title>CodeQuest — A Aventura do Bit</title>
+  <link rel="icon" type="image/svg+xml" href="/CodeQuest/favicon.svg" />
+</head>
+<body>
+
+  <!-- Cenário decorativo (nuvens e sol) — fora do canvas, sempre visível -->
+  <div id="ceu" aria-hidden="true">
+    <div class="nuvem n1"></div>
+    <div class="nuvem n2"></div>
+    <div class="nuvem n3"></div>
+    <div class="sol"></div>
+  </div>
+
+  <div id="app">
+    <!-- Phaser renderiza o tabuleiro da fase aqui -->
+    <div id="game-container"></div>
+
+    <!-- Telas, HUD, painel de blocos e modais em HTML/CSS (o UIManager monta) -->
+    <div id="ui-overlay"></div>
+  </div>
+
+  <div id="confete" aria-hidden="true"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

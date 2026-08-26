@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // F5 aqui: sobe o servidor de desenvolvimento e abre o Chrome já
+      // conectado ao depurador — dá para pôr breakpoint direto no .js
+      "name": "Jogar (dev + depurador)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "dev",
+      "sourceMaps": true
+    },
+    {
+      // confere o build de produção antes de publicar
+      "name": "Conferir build de produção",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:4173/CodeQuest/",
+      "webRoot": "${workspaceFolder}/dist",
+      "preLaunchTask": "preview"
+    }
+  ]
+}

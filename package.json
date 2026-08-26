@@ -1,0 +1,31 @@
+{
+  "name": "codequest",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Jogo web educacional de programação em blocos para crianças de 6 a 11 anos",
+  "author": "Bruno Franzosi",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint src tests",
+    "verificar": "npm run lint && npm run coverage",
+    "telas": "node scripts/capturar-telas.mjs docs/telas"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^10.8.1",
+    "jsdom": "^29.1.1",
+    "puppeteer-core": "^25.7.0",
+    "vite": "^6.0.0",
+    "vitest": "^4.1.10"
+  }
+}

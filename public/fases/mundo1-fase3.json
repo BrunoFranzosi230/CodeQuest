@@ -1,0 +1,51 @@
+{
+  "id": "mundo1-fase3",
+  "nome": "Duas Curvas",
+  "mundo": 1,
+  "conceito": "sequencia",
+  "minBlocos": 9,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 1,
+    "lin": 1,
+    "orientacao": "baixo"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,4,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,1],
+    [1,0,0,3,0,0,0,1],
+    [1,0,0,0,2,0,0,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 3,
+    "lin": 4
+  },
+  "posicaoSaida": {
+    "col": 4,
+    "lin": 5
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir"
+  ],
+  "fala": "Cuidado com as pedras no caminho!",
+  "dica": "Desça até o fim, vire à esquerda e siga em frente.",
+  "sequenciaIdeal": [
+    "andar",
+    "andar",
+    "andar",
+    "virar_esq",
+    "andar",
+    "andar",
+    "andar",
+    "virar_dir",
+    "andar"
+  ]
+}

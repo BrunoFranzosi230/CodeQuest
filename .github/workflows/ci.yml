@@ -1,0 +1,78 @@
+name: CI — lint, testes e cobertura
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  qualidade:
+    name: Qualidade de código
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # o Sonar precisa do histórico para o blame
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Análise estática (ESLint)
+        run: npm run lint
+
+      - name: Testes com cobertura
+        run: npm run coverage
+
+      # A meta de 50% está no vite.config.js; `npm run coverage` já falha abaixo
+      # dela. Este passo só deixa o número visível no resumo da execução.
+      - name: Publicar cobertura no resumo
+        if: always()
+        run: |
+          echo "### Cobertura dos sistemas de lógica de jogo" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          npx vitest run --coverage --reporter=dot 2>&1 | tail -12 >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Guardar relatório de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: coverage/
+          retention-days: 14
+
+      # Só roda depois de configurar sonar-project.properties e o segredo
+      - name: SonarCloud
+        if: ${{ env.SONAR_TOKEN != '' }}
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build:
+    name: Build de produção
+    needs: qualidade        # não builda se lint ou teste falhar
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Guardar build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 14

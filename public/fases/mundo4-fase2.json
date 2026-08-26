@@ -1,0 +1,52 @@
+{
+  "id": "mundo4-fase2",
+  "nome": "O Atalho",
+  "mundo": 4,
+  "conceito": "funcao",
+  "minBlocos": 7,
+  "grid": {
+    "colunas": 8,
+    "linhas": 7
+  },
+  "bitPosicaoInicial": {
+    "col": 1,
+    "lin": 1,
+    "orientacao": "direita"
+  },
+  "tiles": [
+    [1,1,1,1,1,1,1,1],
+    [1,4,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,0,0,3,0,0,1],
+    [1,0,0,0,0,0,0,1],
+    [1,0,0,0,2,0,0,1],
+    [1,1,1,1,1,1,1,1]
+  ],
+  "posicaoChave": {
+    "col": 4,
+    "lin": 3
+  },
+  "posicaoSaida": {
+    "col": 4,
+    "lin": 5
+  },
+  "blocosDisponiveis": [
+    "andar",
+    "virar_esq",
+    "virar_dir",
+    "funcao"
+  ],
+  "fala": "O mesmo truque serve em dois lugares diferentes!",
+  "dica": "Truque: Andar, Andar, Andar, Virar à direita. Programa: truque, andar, truque.",
+  "sequenciaIdeal": [
+    "funcao",
+    "andar",
+    "funcao"
+  ],
+  "truqueIdeal": [
+    "andar",
+    "andar",
+    "andar",
+    "virar_dir"
+  ]
+}
