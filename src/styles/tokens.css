@@ -1,0 +1,43 @@
+/* =========================================================
+   tokens.css — variáveis do sistema visual
+   Redesign infantil (6–11 anos): claro, chunky, contrastado.
+   Substitui a paleta escura do GDD 7.2 — ver docs/GDD-DIFF.md §2.1
+   ========================================================= */
+
+:root {
+  /* --- Céu e cenário --- */
+  --ceu-topo:   #7DD3FC;
+  --ceu-baixo:  #C7F0FF;
+
+  /* --- Superfícies --- */
+  --papel:      #FFFFFF;
+  --papel-2:    #FFF8EC;
+  --contorno:   #2B2140;
+  --sombra:     rgba(43, 33, 64, .22);
+
+  /* --- Blocos de comando (mesma família semântica do GDD) --- */
+  --andar:      #3B82F6;  --andar-esc:   #1D4ED8;
+  --virar:      #14B8A6;  --virar-esc:   #0D7D72;
+  --repetir:    #A855F7;  --repetir-esc: #7A25CE;
+  --ate:        #6366F1;  --ate-esc:     #3730A3;
+  --sese:       #FB923C;  --sese-esc:    #C2560A;
+  --funcao:     #EC4899;  --funcao-esc:  #B41E67;
+
+  /* --- Ações --- */
+  --verde:      #22C55E;  --verde-esc:    #15803D;
+  --amarelo:    #FBBF24;  --amarelo-esc:  #B45309;
+  --azul:       #38BDF8;  --azul-esc:     #0369A1;
+  --vermelho:   #F87171;  --vermelho-esc: #B91C1C;
+  --roxo:       #C084FC;  --roxo-esc:     #7E22CE;
+
+  /* --- Texto --- */
+  --texto:       #2B2140;
+  --texto-fraco: #6B6285;
+
+  /* --- Forma --- */
+  --raio:    22px;
+  --borda:   4px;
+  --profund: 7px;   /* altura do "degrau" 3D dos botões */
+
+  --fonte: 'Segoe UI Rounded', 'Baloo 2', 'Nunito', 'Trebuchet MS', system-ui, sans-serif;
+}
