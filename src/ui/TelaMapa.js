@@ -5,7 +5,7 @@
 
 import { MUNDOS, fasesDoMundo } from '../data/mundos.js';
 
-export function criarTelaMapa(storage, { aoVoltar, aoEscolherFase }) {
+export function criarTelaMapa(storage, { aoVoltar, aoEscolherFase, som }) {
   const tela = document.createElement('section');
   tela.className = 'tela tela-mapa';
   tela.innerHTML = `
@@ -15,10 +15,21 @@ export function criarTelaMapa(storage, { aoVoltar, aoEscolherFase }) {
       </button>
       <h2>Escolha uma aventura</h2>
       <div class="placar-estrelas"><span class="ico">⭐</span> ${storage.totalEstrelas()}</div>
+      <button class="btn btn-pequeno btn-azul" data-acao="som" aria-label="Ligar/desligar som">
+        <span class="ico">${som?.ligado === false ? '🔇' : '🔊'}</span>
+      </button>
     </header>
     <div class="mundos"></div>`;
 
   tela.querySelector('[data-acao="voltar"]').addEventListener('click', aoVoltar);
+
+  const btnSom = tela.querySelector('[data-acao="som"]');
+  btnSom.addEventListener('click', e => {
+    // `false`: a tela de escolha não tem trilha, então religar o som aqui não
+    // deve fazer nenhuma música começar a tocar.
+    const ligado = som ? som.alternar(false) : true;
+    e.currentTarget.querySelector('.ico').textContent = ligado ? '🔊' : '🔇';
+  });
   const container = tela.querySelector('.mundos');
 
   MUNDOS.forEach(mundo => {

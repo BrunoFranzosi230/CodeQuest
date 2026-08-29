@@ -126,7 +126,7 @@ export class UIManager {
   _mostrarMenu() {
     this._limparTela();
     this.raiz.appendChild(criarTelaMenu({
-      aoJogar: () => { this.som.clique(); this.som.tocarMusicaDoMundo(1); this.gm.irParaMapa(); },
+      aoJogar: () => { this.som.clique(); this.gm.irParaMapa(); },
       aoComoJogar: () => { this.som.clique(); this._abrirModal(criarModalTutorial({
         aoFechar: () => { this.som.clique(); this._fecharModais(); }
       })); }
@@ -135,7 +135,12 @@ export class UIManager {
 
   _mostrarMapa() {
     this._limparTela();
+    // A tela de escolha de fases não tem trilha própria: a música do mundo só
+    // começa ao entrar numa fase. Silencia aqui para o caso de ter voltado de
+    // uma fase com a música tocando.
+    this.som.pararMusica();
     this.raiz.appendChild(criarTelaMapa(this.gm.storage, {
+      som: this.som,
       aoVoltar: () => { this.som.clique(); this.gm.irParaMenu(); },
       aoEscolherFase: faseId => { this.som.clique(); this.gm.selecionarFase(faseId); }
     }));
