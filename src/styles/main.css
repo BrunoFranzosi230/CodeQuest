@@ -109,6 +109,27 @@ body {
 .olho-pupila { animation: piscarOlho 4s infinite; transform-origin: center; }
 @keyframes piscarOlho { 0%, 94%, 100% { scale: 1 1; } 97% { scale: 1 .1; } }
 
+/* ================= LOGIN ================= */
+/* O botão do Google é um iframe de tamanho fixo renderizado pela lib do
+   Google; só damos a ele um espaço centralizado e a altura de um botão médio. */
+.login-google { min-height: 44px; display: flex; justify-content: center; }
+
+.login-nota {
+  font-size: 15px; font-weight: 700; color: var(--texto-fraco);
+  display: flex; align-items: center; gap: 8px;
+}
+.login-aviso {
+  font-size: 15px; font-weight: 800; color: var(--vermelho-esc, #b91c1c);
+  background: #fff; border: 3px solid var(--contorno); border-radius: 14px;
+  padding: 8px 14px; max-width: 320px;
+}
+.link-sair {
+  font: inherit; font-weight: 900; color: var(--azul-esc, #1d4ed8);
+  background: none; border: none; padding: 0; cursor: pointer;
+  text-decoration: underline;
+}
+.link-sair:hover { filter: brightness(1.1); }
+
 /* ================= MAPA DE MUNDOS ================= */
 .topo { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; flex-shrink: 0; }
 .topo h2 {

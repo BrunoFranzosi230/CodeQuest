@@ -7,12 +7,13 @@
 import { ProgressoStorage } from '../data/ProgressoStorage.js';
 import { ORDEM_FASES } from '../data/mundos.js';
 
-/** @typedef {'menu'|'mapa'|'jogando'|'pausado'|'vitoria'} AppState */
+/** @typedef {'login'|'menu'|'mapa'|'jogando'|'pausado'|'vitoria'} AppState */
 
 /** Eventos do barramento — o catálogo completo está em `docs/EVENTOS.md`. */
 export const EVENTOS = {
-  ESTADO_MUDOU:        'ESTADO_MUDOU',
-  SELECIONAR_FASE:     'SELECIONAR_FASE',
+  ESTADO_MUDOU:          'ESTADO_MUDOU',
+  PROGRESSO_SINCRONIZADO: 'PROGRESSO_SINCRONIZADO',
+  SELECIONAR_FASE:       'SELECIONAR_FASE',
   FASE_CARREGADA:      'FASE_CARREGADA',
   PROGRAMA_MUDOU:      'PROGRAMA_MUDOU',
   BLOCO_EM_EXECUCAO:   'BLOCO_EM_EXECUCAO',
@@ -35,6 +36,8 @@ export class GameManager {
   constructor() {
     /** @type {AppState|null} começa nulo para a primeira transição emitir de fato */
     this.appState = null;
+    /** @type {{id,nome,email,foto,provedor}|null} quem está jogando */
+    this.usuario = null;
     this.mundoAtual = null;
     this.faseAtual = null;
     this.configFase = null;
@@ -74,8 +77,14 @@ export class GameManager {
     this.emit(EVENTOS.ESTADO_MUDOU, { novoEstado, anterior });
   }
 
+  irParaLogin() { this.setState('login'); }
   irParaMenu()  { this.setState('menu'); }
   irParaMapa()  { this.faseAtual = null; this.setState('mapa'); }
+
+  /** Define o jogador atual (ou null ao sair). Não mexe no estado da tela. */
+  setUsuario(usuario) {
+    this.usuario = usuario ?? null;
+  }
   pausar()      { if (this.appState === 'jogando') this.setState('pausado'); }
   retomar()     { if (this.appState === 'pausado') this.setState('jogando'); }
 

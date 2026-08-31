@@ -16,6 +16,10 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create() {
-    this.game.gm.irParaMenu();
+    const { gm } = this.game;
+    // Mesma cena serve de nó de roteamento para o login e para o menu: sem
+    // usuário, a porta é a tela de login.
+    if (gm.usuario) gm.irParaMenu();
+    else gm.irParaLogin();
   }
 }

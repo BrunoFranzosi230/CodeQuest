@@ -5,9 +5,13 @@
 
 import { svgBit } from './svgBit.js';
 
-export function criarTelaMenu({ aoJogar, aoComoJogar }) {
+export function criarTelaMenu({ aoJogar, aoComoJogar, aoSair, usuario }) {
   const tela = document.createElement('section');
   tela.className = 'tela tela-menu';
+
+  const nome = usuario?.nome ?? 'Jogador';
+  const ehConvidado = usuario?.provedor === 'convidado';
+
   tela.innerHTML = `
     <div class="menu-box">
       <div class="logo-bit">${svgBit()}</div>
@@ -19,11 +23,23 @@ export function criarTelaMenu({ aoJogar, aoComoJogar }) {
       <button class="btn btn-medio btn-azul" data-acao="ajuda">
         <span class="ico">❓</span> Como jogar
       </button>
+      <p class="login-nota">
+        ${ehConvidado ? 'Jogando como convidado' : `Olá, ${escaparHtml(nome)}!`}
+        <button class="link-sair" data-acao="sair">${ehConvidado ? 'entrar' : 'sair'}</button>
+      </p>
     </div>`;
 
   tela.querySelector('[data-acao="jogar"]').addEventListener('click', aoJogar);
   tela.querySelector('[data-acao="ajuda"]').addEventListener('click', aoComoJogar);
+  tela.querySelector('[data-acao="sair"]').addEventListener('click', aoSair);
   return tela;
+}
+
+/** O nome vem do Google; escapa antes de interpolar no HTML. */
+function escaparHtml(texto) {
+  const d = document.createElement('div');
+  d.textContent = texto;
+  return d.innerHTML;
 }
 
 export function criarModalTutorial({ aoFechar }) {

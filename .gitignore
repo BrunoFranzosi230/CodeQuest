@@ -1,5 +1,11 @@
 node_modules/
 dist/
+docs/
 .DS_Store
 *.local
 .vite/
+
+# Variáveis de ambiente (o .env.example fica versionado como modelo)
+.env
+.env.*
+!.env.example

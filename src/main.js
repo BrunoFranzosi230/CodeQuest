@@ -10,7 +10,10 @@ import Phaser from 'phaser';
 import { GameManager, EVENTOS } from './core/GameManager.js';
 import { UIManager } from './core/UIManager.js';
 import { AudioManager } from './core/AudioManager.js';
+import { AuthManager } from './core/AuthManager.js';
 import { Telemetria } from './core/Telemetria.js';
+import { CONFIG } from './config.js';
+import { criarBackendRemoto } from './data/criarBackendRemoto.js';
 
 import { BootScene } from './scenes/BootScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
@@ -19,7 +22,32 @@ import { GameplayScene } from './scenes/GameplayScene.js';
 
 const gm = new GameManager();
 const som = new AudioManager();
-const ui = new UIManager(gm, som);
+const auth = new AuthManager({ clientId: CONFIG.googleClientId });
+
+/**
+ * Troca o jogador atual e concilia o progresso com o destino certo: nuvem
+ * (Google + VITE_API_URL configurada) ou apenas localStorage. Chamado no boot,
+ * ao entrar e ao sair. É aqui — e só aqui — que a config da AWS encontra o
+ * usuário. Ver docs/AUTENTICACAO.md e docs/AWS.md.
+ */
+async function aplicarUsuario(usuario) {
+  gm.setUsuario(usuario);
+
+  const chave = usuario && usuario.provedor === 'google'
+    ? `codequest_progresso__${usuario.id}`
+    : 'codequest_progresso';
+
+  gm.storage.definirContexto({ chave, remoto: criarBackendRemoto(usuario, auth) });
+
+  try {
+    await gm.storage.sincronizar();
+  } catch (e) {
+    console.warn('[main] Falha ao sincronizar o progresso.', e);
+  }
+  gm.emit(EVENTOS.PROGRESSO_SINCRONIZADO, {});
+}
+
+const ui = new UIManager(gm, som, auth, aplicarUsuario);
 
 // Telemetria de sessão + crash reporting. Só observa eventos: nenhum outro
 // módulo sabe que ela existe, e nada sai do navegador da criança.
@@ -62,6 +90,7 @@ const CENAS = ['MenuScene', 'MapaMundosScene', 'GameplayScene'];
  * handler de SELECIONAR_FASE, abaixo.
  */
 const CENA_DO_ESTADO = {
+  login: 'MenuScene',   // mesmo nó de roteamento (sem canvas) do menu
   menu: 'MenuScene',
   mapa: 'MapaMundosScene'
 };
@@ -78,6 +107,11 @@ gm.on(EVENTOS.ESTADO_MUDOU, ({ novoEstado }) => {
   if (cena) trocarPara(cena);
 });
 
+// Sessão lembrada de uma visita anterior: entra direto, sem passar pelo login.
+// Roda de forma síncrona até o primeiro `await`, então `gm.usuario` já está
+// definido quando a MenuScene decide entre login e menu.
+if (auth.usuario) aplicarUsuario(auth.usuario);
+
 /** Porta de entrada única da cena de jogo — ver a nota acima. */
 gm.on(EVENTOS.SELECIONAR_FASE, () => {
   if (jogo.scene.isActive('GameplayScene')) {
@@ -93,7 +127,7 @@ gm.on(EVENTOS.SELECIONAR_FASE, () => {
 window.telemetria = telemetria;
 
 if (import.meta.env.DEV) {
-  Object.assign(window, { jogo, gm, som, ui });
+  Object.assign(window, { jogo, gm, som, ui, auth });
   import('./dev/testarFases.js').then(({ testarFases }) => {
     window.testarFases = testarFases;
     console.info('[dev] `testarFases()` valida as 14 fases · `telemetria.resumo()` mostra as métricas da sessão');

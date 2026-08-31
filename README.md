@@ -18,12 +18,17 @@ npm run dev
 
 Abre em `http://localhost:5173`.
 
+O jogo roda sem nenhuma configuração (login pelo **modo convidado**). Para
+habilitar o **login com Google** e/ou o salvamento na **nuvem**, copie
+`.env.example` para `.env.local` e preencha — passo a passo em
+[docs/AUTENTICACAO.md](docs/AUTENTICACAO.md).
+
 | Comando | O que faz |
 |---|---|
 | `npm run dev` | servidor de desenvolvimento com hot reload |
 | `npm run build` | build de produção em `dist/` |
 | `npm run preview` | serve o `dist/` para conferir antes de publicar |
-| `npm test` | roda os 216 testes |
+| `npm test` | roda os 261 testes |
 | `npm run coverage` | testes + cobertura (falha abaixo de 50%) |
 | `npm run lint` | análise estática |
 | `npm run verificar` | **o portão de qualidade: lint + cobertura** |
@@ -65,6 +70,7 @@ codequest/
 │   │   ├── BitController.js   move o Bit, detecta colisão e vitória
 │   │   ├── UIManager.js       telas, HUD e modais (reativo ao estado)
 │   │   ├── AudioManager.js    SFX e trilha sintetizados
+│   │   ├── AuthManager.js     login com Google / convidado e sessão
 │   │   └── Telemetria.js      sessão, métricas de playtest e captura de erros
 │   ├── scenes/                cenas do Phaser
 │   │   ├── BootScene.js       gera as texturas por código
@@ -74,23 +80,29 @@ codequest/
 │   ├── ui/                    componentes de interface em HTML/CSS
 │   │   ├── BlocoPanel.js      editor de blocos
 │   │   ├── HUD.js
+│   │   ├── TelaLogin.js       porta de entrada (Google / convidado)
 │   │   ├── TelaMenu.js
 │   │   ├── TelaMapa.js
 │   │   ├── ModalPause.js
 │   │   ├── ModalVitoria.js
 │   │   └── svgBit.js
+│   ├── config.js              lê as variáveis de ambiente (.env.local)
 │   ├── data/
 │   │   ├── blocos.js          catálogo de blocos
 │   │   ├── mundos.js          mundos, temas e ordem das fases
-│   │   └── ProgressoStorage.js  camada de acesso ao localStorage
+│   │   ├── criarBackendRemoto.js  liga a config da AWS ao jogador logado
+│   │   ├── backends/ApiBackend.js  cliente REST do progresso na nuvem
+│   │   └── ProgressoStorage.js  progresso: localStorage e/ou nuvem
 │   ├── dev/testarFases.js     smoke test (só em desenvolvimento)
 │   └── styles/
 │       ├── main.css           layout, telas e responsividade
 │       ├── tokens.css         variáveis do sistema visual
 │       └── blocos.css         paleta e editor de sequência
-├── tests/                     216 testes (Vitest)
+├── tests/                     261 testes (Vitest)
 ├── docs/
 │   ├── ARQUITETURA.md         camadas, o que é "back" e como publicar
+│   ├── AUTENTICACAO.md        login com Google, .env e conciliação de progresso
+│   ├── AWS.md                 infra do backend de progresso (API Gateway/Lambda/DynamoDB)
 │   ├── CONFORMIDADE.md        rastreabilidade com o Contrato e o Directions
 │   ├── MUSICA.md              formato e como instalar as faixas dos mundos
 │   ├── REDESIGN.md            justificativa da direção visual
@@ -200,9 +212,10 @@ o nome do repositório.
 | Engine | Phaser 3 |
 | Empacotador | Vite |
 | Linguagem | JavaScript (ES6+, módulos nativos) |
-| Persistência | `localStorage` |
+| Persistência | `localStorage`; nuvem opcional na AWS (ver [docs/AWS.md](docs/AWS.md)) |
+| Autenticação | Google Identity Services (ou modo convidado) |
 | Áudio | Web Audio API (sintetizado) |
-| Hospedagem | GitHub Pages |
+| Hospedagem | GitHub Pages (jogo) + AWS serverless (progresso, opcional) |
 
 O editor de blocos é próprio, não Blockly — a justificativa está em
 [docs/GDD-DIFF.md](docs/GDD-DIFF.md).

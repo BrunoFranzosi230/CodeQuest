@@ -7,6 +7,7 @@
 import { EVENTOS } from './GameManager.js';
 import { BlocoPanel } from '../ui/BlocoPanel.js';
 import { HUD } from '../ui/HUD.js';
+import { criarTelaLogin } from '../ui/TelaLogin.js';
 import { criarTelaMenu, criarModalTutorial } from '../ui/TelaMenu.js';
 import { criarTelaMapa } from '../ui/TelaMapa.js';
 import { criarModalPause } from '../ui/ModalPause.js';
@@ -16,10 +17,16 @@ export class UIManager {
   /**
    * @param {import('./GameManager.js').GameManager} gm
    * @param {import('./AudioManager.js').AudioManager} som
+   * @param {import('./AuthManager.js').AuthManager} auth
+   * @param {(usuario: object|null) => Promise<void>} aplicarUsuario
+   *   Troca o usuário do jogo e sincroniza o progresso (definido em main.js —
+   *   é ele quem conhece a config da AWS).
    */
-  constructor(gm, som) {
+  constructor(gm, som, auth, aplicarUsuario) {
     this.gm = gm;
     this.som = som;
+    this.auth = auth;
+    this._aplicarUsuario = aplicarUsuario ?? (async () => {});
     this.raiz = document.getElementById('ui-overlay');
     this.containerJogo = document.getElementById('game-container');
     this.app = document.getElementById('app');
@@ -52,6 +59,10 @@ export class UIManager {
     const { gm } = this;
 
     gm.on(EVENTOS.ESTADO_MUDOU, ({ novoEstado }) => this._aoMudarEstado(novoEstado));
+    gm.on(EVENTOS.PROGRESSO_SINCRONIZADO, () => {
+      // o progresso da nuvem chegou depois da tela abrir — redesenha o mapa
+      if (this.gm.appState === 'mapa') this._mostrarMapa();
+    });
     gm.on(EVENTOS.FASE_CARREGADA, ({ config }) => this._montarFase(config));
     gm.on(EVENTOS.BIT_FALOU, ({ texto, ms }) => this._falar(texto, ms));
     gm.on(EVENTOS.CHAVE_COLETADA, () => this.hud?.setChaveColetada(true));
@@ -85,6 +96,7 @@ export class UIManager {
 
   _aoMudarEstado(estado) {
     switch (estado) {
+      case 'login':    this._mostrarLogin(); break;
       case 'menu':     this._mostrarMenu(); break;
       case 'mapa':     this._mostrarMapa(); break;
       case 'jogando':  this._mostrarJogo(); break;
@@ -123,13 +135,55 @@ export class UIManager {
     this.elDica = null;
   }
 
+  /** Tela de entrada: login com Google ou modo convidado. */
+  _mostrarLogin() {
+    this._limparTela();
+    this.som.pararMusica();
+    const tela = criarTelaLogin({
+      googleDisponivel: this.auth.googleDisponivel,
+      aoEntrarConvidado: () => {
+        this.som.clique();
+        this._entrar(this.auth.entrarComoConvidado());
+      },
+      montarBotaoGoogle: el => this.auth.renderizarBotao(
+        el,
+        usuario => this._entrar(usuario),
+        erro => this._avisoLogin(tela, `Não deu para entrar com o Google: ${erro.message}`)
+      )
+    });
+    this.raiz.appendChild(tela);
+  }
+
+  _avisoLogin(tela, texto) {
+    let aviso = tela.querySelector('.login-aviso');
+    if (!aviso) {
+      aviso = document.createElement('p');
+      aviso.className = 'login-aviso';
+      tela.querySelector('.menu-box').appendChild(aviso);
+    }
+    aviso.textContent = texto;
+  }
+
+  /** Fecha o login: aplica o usuário, sincroniza o progresso e abre o menu. */
+  async _entrar(usuario) {
+    await this._aplicarUsuario(usuario);
+    this.gm.irParaMenu();
+  }
+
   _mostrarMenu() {
     this._limparTela();
     this.raiz.appendChild(criarTelaMenu({
+      usuario: this.gm.usuario,
       aoJogar: () => { this.som.clique(); this.gm.irParaMapa(); },
       aoComoJogar: () => { this.som.clique(); this._abrirModal(criarModalTutorial({
         aoFechar: () => { this.som.clique(); this._fecharModais(); }
-      })); }
+      })); },
+      aoSair: async () => {
+        this.som.clique();
+        this.auth.sair();
+        await this._aplicarUsuario(null);
+        this.gm.irParaLogin();
+      }
     }));
   }
 
