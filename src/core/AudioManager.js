@@ -166,10 +166,20 @@ export class AudioManager {
     }
   }
 
-  alternar() {
+  /**
+   * Liga/desliga todo o áudio.
+   * @param {boolean} retomarMusica quando religa, retoma a música do mundo atual.
+   *   As telas sem trilha (menu, mapa de fases) passam `false` para não
+   *   começar uma música que não deveria tocar ali.
+   */
+  alternar(retomarMusica = true) {
     this.ligado = !this.ligado;
-    if (this.ligado) { this.clique(); this.tocarMusicaDoMundo(this._mundoAtual); }
-    else this.pararMusica();
+    if (this.ligado) {
+      this.clique();
+      if (retomarMusica) this.tocarMusicaDoMundo(this._mundoAtual);
+    } else {
+      this.pararMusica();
+    }
     return this.ligado;
   }
 }

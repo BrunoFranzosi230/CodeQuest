@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.82% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>60/60</span>
+                <span class='fraction'>61/63</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.88% </span>
+                <span class="strong">82.75% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>24/27</span>
+                <span class='fraction'>24/29</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">90.47% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>19/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.36% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>52/52</span>
+                <span class='fraction'>53/55</span>
             </div>
         
             
@@ -213,7 +213,16 @@
 <a name='L148'></a><a href='#L148'>148</a>
 <a name='L149'></a><a href='#L149'>149</a>
 <a name='L150'></a><a href='#L150'>150</a>
-<a name='L151'></a><a href='#L151'>151</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -244,10 +253,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-yes">27x</span>
@@ -289,8 +301,14 @@
 <span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -372,12 +390,13 @@
 import { ProgressoStorage } from '../data/ProgressoStorage.js';
 import { ORDEM_FASES } from '../data/mundos.js';
 &nbsp;
-/** @typedef {'menu'|'mapa'|'jogando'|'pausado'|'vitoria'} AppState */
+/** @typedef {'login'|'menu'|'mapa'|'jogando'|'pausado'|'vitoria'} AppState */
 &nbsp;
 /** Eventos do barramento — o catálogo completo está em `docs/EVENTOS.md`. */
 export const EVENTOS = {
-  ESTADO_MUDOU:        'ESTADO_MUDOU',
-  SELECIONAR_FASE:     'SELECIONAR_FASE',
+  ESTADO_MUDOU:          'ESTADO_MUDOU',
+  PROGRESSO_SINCRONIZADO: 'PROGRESSO_SINCRONIZADO',
+  SELECIONAR_FASE:       'SELECIONAR_FASE',
   FASE_CARREGADA:      'FASE_CARREGADA',
   PROGRAMA_MUDOU:      'PROGRAMA_MUDOU',
   BLOCO_EM_EXECUCAO:   'BLOCO_EM_EXECUCAO',
@@ -400,6 +419,8 @@ export class GameManager {
   constructor() {
     /** @type {AppState|null} começa nulo para a primeira transição emitir de fato */
     this.appState = null;
+    /** @type {{id,nome,email,foto,provedor}|null} quem está jogando */
+    this.usuario = null;
     this.mundoAtual = null;
     this.faseAtual = null;
     this.configFase = null;
@@ -439,8 +460,14 @@ export class GameManager {
     this.emit(EVENTOS.ESTADO_MUDOU, { novoEstado, anterior });
   }
 &nbsp;
+<span class="fstat-no" title="function not covered" >  irParaLogin(</span>) { <span class="cstat-no" title="statement not covered" >this.setState('login'); </span>}
   irParaMenu()  { this.setState('menu'); }
   irParaMapa()  { this.faseAtual = null; this.setState('mapa'); }
+&nbsp;
+  /** Define o jogador atual (ou null ao sair). Não mexe no estado da tela. */
+<span class="fstat-no" title="function not covered" >  setUsuario(</span>usuario) {
+<span class="cstat-no" title="statement not covered" >    this.usuario = usuario ?? null;</span>
+  }
   pausar()      { if (this.appState === 'jogando') this.setState('pausado'); }
   retomar()     { <span class="missing-if-branch" title="else path not taken" >E</span>if (this.appState === 'pausado') this.setState('jogando'); }
 &nbsp;
@@ -520,7 +547,7 @@ export class GameManager {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-26T16:48:30.268Z
+                at 2026-08-31T21:50:36.471Z
             </div>
         <script src="../prettify.js"></script>
         <script>

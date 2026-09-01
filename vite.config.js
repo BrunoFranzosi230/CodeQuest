@@ -26,8 +26,11 @@ export default defineConfig({
         'src/core/BitController.js',
         'src/core/Telemetria.js',
         'src/core/AudioManager.js',
+        'src/core/AuthManager.js',
         'src/data/**/*.js'
       ],
+      // config.js só lê variáveis de ambiente; nada a testar.
+      exclude: ['src/config.js'],
       thresholds: { lines: 50, functions: 50, statements: 50, branches: 50 }
     }
   },
