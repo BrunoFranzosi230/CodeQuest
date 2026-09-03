@@ -39,6 +39,11 @@ jobs:
 
       - name: Build de produção
         run: npm run build
+        env:
+          # Valores públicos (vão embarcados no JS). Configure em
+          # Settings → Secrets and variables → Actions → aba "Variables".
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
 
       - uses: actions/configure-pages@v5
 

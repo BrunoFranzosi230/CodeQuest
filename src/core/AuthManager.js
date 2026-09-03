@@ -30,9 +30,10 @@ export class AuthManager {
     this.clientId = clientId;
     this._storage = storage ?? (typeof localStorage !== 'undefined' ? localStorage : null);
     this._carregarScript = carregarScript ?? (() => this._injetarGis());
-    this.usuario = this._lerSessao();   // { id, nome, email, foto, provedor } | null
-    this.idToken = null;                // só em memória
+    this.idToken = null;
+    this._exp = 0;                      // validade do idToken (epoch ms)
     this._gis = null;
+    this.usuario = this._lerSessao();   // pode repor idToken/_exp se ainda válidos
   }
 
   /** Há credencial do Google configurada? Sem isso, só o modo convidado. */
@@ -93,6 +94,7 @@ export class AuthManager {
     if (!credencial) throw new Error('O Google não devolveu credencial.');
     const perfil = decodificarJwt(credencial);
     this.idToken = credencial;
+    this._exp = (perfil.exp ?? 0) * 1000;   // "exp" do JWT vem em segundos
     this.usuario = {
       id: perfil.sub,
       nome: perfil.name || perfil.given_name || 'Jogador',
@@ -108,6 +110,7 @@ export class AuthManager {
     try { globalThis.google?.accounts?.id?.disableAutoSelect?.(); } catch { /* ok */ }
     this.usuario = null;
     this.idToken = null;
+    this._exp = 0;
     try { this._storage?.removeItem(CHAVE_SESSAO); } catch { /* ok */ }
   }
 
@@ -116,21 +119,80 @@ export class AuthManager {
     return this.idToken;
   }
 
+  /** O idToken em mãos ainda tem validade (com folga de 1 min)? */
+  tokenValido() {
+    return Boolean(this.idToken && this._exp > Date.now() + 60_000);
+  }
+
+  /**
+   * Tenta obter um idToken novo sem incomodar o jogador (One Tap com seleção
+   * automática). Usado no boot quando a sessão foi lembrada mas o token já
+   * expirou. Resolve com o usuário renovado, ou `null` se não for possível.
+   */
+  async renovarTokenSilencioso() {
+    if (!this.googleDisponivel || this.usuario?.provedor !== 'google') return null;
+    try {
+      const google = await this._pronto();
+      return await new Promise(resolve => {
+        let resolvido = false;
+        let timer = null;
+        const terminar = valor => {
+          if (resolvido) return;
+          resolvido = true;
+          if (timer) clearTimeout(timer);
+          resolve(valor);
+        };
+
+        google.accounts.id.initialize({
+          client_id: this.clientId,
+          auto_select: true,
+          callback: resp => terminar(resp?.credential ? this._aplicarCredencial(resp.credential) : null)
+        });
+        google.accounts.id.prompt(notif => {
+          if (notif?.isNotDisplayed?.() || notif?.isSkippedMoment?.() || notif?.isDismissedMoment?.()) {
+            terminar(null);
+          }
+        });
+        timer = setTimeout(() => terminar(null), 4000);   // não fica pendurado
+      });
+    } catch {
+      return null;
+    }
+  }
+
   // ── Sessão persistida ────────────────────────────────────────────────────
 
   _lerSessao() {
     try {
       const bruto = this._storage?.getItem(CHAVE_SESSAO);
       const s = bruto ? JSON.parse(bruto) : null;
-      return s && s.id && s.provedor ? s : null;
+      if (!s || !s.id || !s.provedor) return null;
+
+      // reaproveita o idToken salvo enquanto ainda tem folga de validade
+      if (s.idToken && s.exp && s.exp > Date.now() + 60_000) {
+        this.idToken = s.idToken;
+        this._exp = s.exp;
+      }
+      return {
+        id: s.id, nome: s.nome, email: s.email ?? null,
+        foto: s.foto ?? null, provedor: s.provedor
+      };
     } catch {
       return null;
     }
   }
 
   _gravarSessao() {
+    if (!this.usuario) return;
+    const dados = { ...this.usuario };
+    // guarda o idToken só no login com Google, para o boot seguinte já
+    // conseguir falar com a nuvem sem pedir um novo clique (vale ~1h).
+    if (this.usuario.provedor === 'google' && this.idToken) {
+      dados.idToken = this.idToken;
+      dados.exp = this._exp;
+    }
     try {
-      this._storage?.setItem(CHAVE_SESSAO, JSON.stringify(this.usuario));
+      this._storage?.setItem(CHAVE_SESSAO, JSON.stringify(dados));
     } catch { /* navegação anônima: segue sem lembrar */ }
   }
 

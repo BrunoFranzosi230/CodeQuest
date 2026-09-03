@@ -120,4 +120,73 @@ describe('AuthManager', () => {
       expect(aoFalhar).toHaveBeenCalledWith(expect.any(Error));
     });
   });
+
+  describe('idToken entre recarregamentos', () => {
+    const daquiUmaHora = () => Math.floor(Date.now() / 1000) + 3600;
+
+    function logarComGoogle(payload) {
+      let cb;
+      globalThis.google = {
+        accounts: { id: { initialize: c => { cb = c.callback; }, renderButton: vi.fn(), prompt: vi.fn() } }
+      };
+      const auth = new AuthManager({
+        clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
+      });
+      return auth.renderizarBotao({}, vi.fn(), vi.fn())
+        .then(() => { cb({ credential: jwtFalso(payload) }); return auth; });
+    }
+
+    it('tokenValido reflete a validade do exp', async () => {
+      const semLogin = new AuthManager({ storage: localStorage });
+      expect(semLogin.tokenValido()).toBe(false);
+
+      const auth = await logarComGoogle({ sub: '1', name: 'A', exp: daquiUmaHora() });
+      expect(auth.tokenValido()).toBe(true);
+    });
+
+    it('uma nova instância reaproveita o token salvo se ainda vale', async () => {
+      await logarComGoogle({ sub: '7', name: 'Bit', exp: daquiUmaHora() });
+
+      const outra = new AuthManager({ storage: localStorage });
+      expect(outra.usuario).toMatchObject({ id: '7', provedor: 'google' });
+      expect(outra.tokenValido()).toBe(true);
+      expect(outra.obterToken()).toBeTypeOf('string');
+    });
+
+    it('token expirado não é reaproveitado, mas o perfil continua', () => {
+      localStorage.setItem(CHAVE_SESSAO, JSON.stringify({
+        id: '7', nome: 'Bit', provedor: 'google',
+        idToken: 'x.y.z', exp: Date.now() - 1000
+      }));
+      const auth = new AuthManager({ storage: localStorage });
+      expect(auth.usuario).toMatchObject({ id: '7', provedor: 'google' });
+      expect(auth.tokenValido()).toBe(false);
+      expect(auth.obterToken()).toBeNull();
+    });
+
+    it('renovarTokenSilencioso pega um token novo pelo One Tap', async () => {
+      localStorage.setItem(CHAVE_SESSAO, JSON.stringify({ id: '7', nome: 'Bit', provedor: 'google' }));
+      let cb;
+      globalThis.google = {
+        accounts: { id: {
+          initialize: c => { cb = c.callback; },
+          prompt: () => cb({ credential: jwtFalso({ sub: '7', name: 'Bit', exp: daquiUmaHora() }) })
+        } }
+      };
+      const auth = new AuthManager({
+        clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
+      });
+      expect(auth.tokenValido()).toBe(false);
+
+      const renovado = await auth.renovarTokenSilencioso();
+      expect(renovado).toMatchObject({ id: '7', provedor: 'google' });
+      expect(auth.tokenValido()).toBe(true);
+    });
+
+    it('renovarTokenSilencioso devolve null sem client id', async () => {
+      localStorage.setItem(CHAVE_SESSAO, JSON.stringify({ id: '7', nome: 'Bit', provedor: 'google' }));
+      const auth = new AuthManager({ storage: localStorage, carregarScript: () => Promise.resolve() });
+      expect(await auth.renovarTokenSilencioso()).toBeNull();
+    });
+  });
 });

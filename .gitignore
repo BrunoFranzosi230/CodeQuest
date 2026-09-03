@@ -4,6 +4,7 @@ docs/
 .DS_Store
 *.local
 .vite/
+*.zip
 
 # Variáveis de ambiente (o .env.example fica versionado como modelo)
 .env
