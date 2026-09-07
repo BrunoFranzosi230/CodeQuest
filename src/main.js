@@ -33,6 +33,13 @@ const auth = new AuthManager({ clientId: CONFIG.googleClientId });
 async function aplicarUsuario(usuario) {
   gm.setUsuario(usuario);
 
+  // Sessão lembrada volta sem idToken válido (ele expira em ~1h). Antes de
+  // falar com a nuvem, tenta renovar em silêncio (One Tap com auto-seleção).
+  if (usuario?.provedor === 'google' && !auth.tokenValido()) {
+    const renovado = await auth.renovarTokenSilencioso();
+    if (renovado) { usuario = renovado; gm.setUsuario(renovado); }
+  }
+
   const chave = usuario && usuario.provedor === 'google'
     ? `codequest_progresso__${usuario.id}`
     : 'codequest_progresso';

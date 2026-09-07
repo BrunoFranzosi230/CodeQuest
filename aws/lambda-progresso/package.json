@@ -1,0 +1,12 @@
+{
+  "name": "codequest-lambda-progresso",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Lambda do CodeQuest: valida o ID token do Google e lê/grava o progresso no PostgreSQL (RDS).",
+  "main": "index.mjs",
+  "dependencies": {
+    "google-auth-library": "^9.15.1",
+    "pg": "^8.13.1"
+  }
+}
