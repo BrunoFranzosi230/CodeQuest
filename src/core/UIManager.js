@@ -141,15 +141,18 @@ export class UIManager {
     this.som.pararMusica();
     const tela = criarTelaLogin({
       googleDisponivel: this.auth.googleDisponivel,
+      aoEntrarGoogle: async () => {
+        this.som.clique();
+        try {
+          await this._entrar(await this.auth.entrarComGoogle());
+        } catch (e) {
+          this._avisoLogin(tela, `Não deu para entrar com o Google: ${e.message}`);
+        }
+      },
       aoEntrarConvidado: () => {
         this.som.clique();
         this._entrar(this.auth.entrarComoConvidado());
-      },
-      montarBotaoGoogle: el => this.auth.renderizarBotao(
-        el,
-        usuario => this._entrar(usuario),
-        erro => this._avisoLogin(tela, `Não deu para entrar com o Google: ${erro.message}`)
-      )
+      }
     });
     this.raiz.appendChild(tela);
   }

@@ -79,12 +79,14 @@ describe('AuthManager', () => {
         .googleDisponivel).toBe(true);
     });
 
-    it('renderizarBotao aplica a credencial e vira usuário google', async () => {
+    it('entrarComGoogle aplica a credencial e vira usuário google', async () => {
       let callbackGoogle;
       globalThis.google = {
         accounts: { id: {
           initialize: cfg => { callbackGoogle = cfg.callback; },
-          renderButton: vi.fn()
+          prompt: () => callbackGoogle({
+            credential: jwtFalso({ sub: '99', name: 'Bit', email: 'b@x.com', picture: 'p.png' })
+          })
         } }
       };
       const auth = new AuthManager({
@@ -92,32 +94,51 @@ describe('AuthManager', () => {
         carregarScript: () => Promise.resolve()
       });
 
-      const aoEntrar = vi.fn();
-      await auth.renderizarBotao({}, aoEntrar, vi.fn());
-      callbackGoogle({ credential: jwtFalso({ sub: '99', name: 'Bit', email: 'b@x.com', picture: 'p.png' }) });
+      const usuario = await auth.entrarComGoogle();
 
-      expect(aoEntrar).toHaveBeenCalledWith(expect.objectContaining({
-        id: '99', nome: 'Bit', email: 'b@x.com', provedor: 'google'
-      }));
+      expect(usuario).toMatchObject({ id: '99', nome: 'Bit', email: 'b@x.com', provedor: 'google' });
       expect(auth.obterToken()).toBeTypeOf('string');
       expect(auth.usuario.id).toBe('99');
     });
 
-    it('renderizarBotao não faz nada sem client id', async () => {
+    it('entrarComGoogle rejeita sem client id', async () => {
       const auth = new AuthManager({ storage: localStorage, carregarScript: () => Promise.resolve() });
-      const aoEntrar = vi.fn();
-      await auth.renderizarBotao({}, aoEntrar, vi.fn());
-      expect(aoEntrar).not.toHaveBeenCalled();
+      await expect(auth.entrarComGoogle()).rejects.toThrow();
     });
 
-    it('propaga falha no carregamento do script para aoFalhar', async () => {
+    it('entrarComGoogle rejeita quando o prompt não é exibido', async () => {
+      globalThis.google = {
+        accounts: { id: {
+          initialize: vi.fn(),
+          prompt: cb => cb({ isNotDisplayed: () => true, isSkippedMoment: () => false })
+        } }
+      };
+      const auth = new AuthManager({
+        clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
+      });
+      await expect(auth.entrarComGoogle()).rejects.toThrow();
+    });
+
+    it('entrarComGoogle rejeita se o jogador cancelar (sem credencial)', async () => {
+      let callbackGoogle;
+      globalThis.google = {
+        accounts: { id: {
+          initialize: cfg => { callbackGoogle = cfg.callback; },
+          prompt: () => callbackGoogle({ credential: null })
+        } }
+      };
+      const auth = new AuthManager({
+        clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
+      });
+      await expect(auth.entrarComGoogle()).rejects.toThrow(/cancelado/);
+    });
+
+    it('propaga falha no carregamento do script', async () => {
       const auth = new AuthManager({
         clientId: 'abc', storage: localStorage,
         carregarScript: () => Promise.reject(new Error('offline'))
       });
-      const aoFalhar = vi.fn();
-      await auth.renderizarBotao({}, vi.fn(), aoFalhar);
-      expect(aoFalhar).toHaveBeenCalledWith(expect.any(Error));
+      await expect(auth.entrarComGoogle()).rejects.toThrow('offline');
     });
   });
 
@@ -127,13 +148,15 @@ describe('AuthManager', () => {
     function logarComGoogle(payload) {
       let cb;
       globalThis.google = {
-        accounts: { id: { initialize: c => { cb = c.callback; }, renderButton: vi.fn(), prompt: vi.fn() } }
+        accounts: { id: {
+          initialize: c => { cb = c.callback; },
+          prompt: () => cb({ credential: jwtFalso(payload) })
+        } }
       };
       const auth = new AuthManager({
         clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
       });
-      return auth.renderizarBotao({}, vi.fn(), vi.fn())
-        .then(() => { cb({ credential: jwtFalso(payload) }); return auth; });
+      return auth.entrarComGoogle().then(() => auth);
     }
 
     it('tokenValido reflete a validade do exp', async () => {

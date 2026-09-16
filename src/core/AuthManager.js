@@ -63,30 +63,34 @@ export class AuthManager {
   // ── Google ───────────────────────────────────────────────────────────────
 
   /**
-   * Renderiza o botão oficial do Google dentro de `elemento`. O clique dispara
-   * `aoEntrar(usuario)` ou `aoFalhar(erro)`.
+   * Dispara o login do Google a partir de um clique num botão nosso (com a
+   * identidade visual do jogo, não o widget do Google). Resolve com o
+   * usuário; rejeita se o jogador cancelar ou o navegador não conseguir
+   * exibir o prompt (bloqueador de terceiros, cooldown do One Tap etc.).
    */
-  async renderizarBotao(elemento, aoEntrar, aoFalhar) {
-    if (!this.googleDisponivel) return;
-    try {
-      const google = await this._pronto();
+  async entrarComGoogle() {
+    if (!this.googleDisponivel) throw new Error('Login com Google não configurado.');
+    const google = await this._pronto();
+
+    return new Promise((resolve, reject) => {
+      let decidido = false;
+      const resolver = valor => { if (!decidido) { decidido = true; resolve(valor); } };
+      const rejeitar = erro => { if (!decidido) { decidido = true; reject(erro); } };
+
       google.accounts.id.initialize({
         client_id: this.clientId,
         callback: resp => {
-          try {
-            aoEntrar(this._aplicarCredencial(resp?.credential));
-          } catch (e) {
-            aoFalhar?.(e);
-          }
+          if (!resp?.credential) { rejeitar(new Error('Login cancelado.')); return; }
+          try { resolver(this._aplicarCredencial(resp.credential)); }
+          catch (e) { rejeitar(e); }
         }
       });
-      google.accounts.id.renderButton(elemento, {
-        type: 'standard', theme: 'filled_blue', size: 'large',
-        shape: 'pill', text: 'signin_with', locale: 'pt-BR'
+      google.accounts.id.prompt(notif => {
+        if (notif?.isNotDisplayed?.() || notif?.isSkippedMoment?.()) {
+          rejeitar(new Error('Não foi possível abrir o login do Google. Tente de novo.'));
+        }
       });
-    } catch (e) {
-      aoFalhar?.(e);
-    }
+    });
   }
 
   /** Aplica o JWT recebido do Google e devolve o usuário. */
