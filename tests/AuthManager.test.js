@@ -79,12 +79,14 @@ describe('AuthManager', () => {
         .googleDisponivel).toBe(true);
     });
 
-    it('renderizarBotao aplica a credencial e vira usuário google', async () => {
+    it('entrarComGoogle aplica a credencial e vira usuário google', async () => {
       let callbackGoogle;
       globalThis.google = {
         accounts: { id: {
           initialize: cfg => { callbackGoogle = cfg.callback; },
-          renderButton: vi.fn()
+          prompt: () => callbackGoogle({
+            credential: jwtFalso({ sub: '99', name: 'Bit', email: 'b@x.com', picture: 'p.png' })
+          })
         } }
       };
       const auth = new AuthManager({
@@ -92,32 +94,122 @@ describe('AuthManager', () => {
         carregarScript: () => Promise.resolve()
       });
 
-      const aoEntrar = vi.fn();
-      await auth.renderizarBotao({}, aoEntrar, vi.fn());
-      callbackGoogle({ credential: jwtFalso({ sub: '99', name: 'Bit', email: 'b@x.com', picture: 'p.png' }) });
+      const usuario = await auth.entrarComGoogle();
 
-      expect(aoEntrar).toHaveBeenCalledWith(expect.objectContaining({
-        id: '99', nome: 'Bit', email: 'b@x.com', provedor: 'google'
-      }));
+      expect(usuario).toMatchObject({ id: '99', nome: 'Bit', email: 'b@x.com', provedor: 'google' });
       expect(auth.obterToken()).toBeTypeOf('string');
       expect(auth.usuario.id).toBe('99');
     });
 
-    it('renderizarBotao não faz nada sem client id', async () => {
+    it('entrarComGoogle rejeita sem client id', async () => {
       const auth = new AuthManager({ storage: localStorage, carregarScript: () => Promise.resolve() });
-      const aoEntrar = vi.fn();
-      await auth.renderizarBotao({}, aoEntrar, vi.fn());
-      expect(aoEntrar).not.toHaveBeenCalled();
+      await expect(auth.entrarComGoogle()).rejects.toThrow();
     });
 
-    it('propaga falha no carregamento do script para aoFalhar', async () => {
+    it('entrarComGoogle rejeita quando o prompt não é exibido', async () => {
+      globalThis.google = {
+        accounts: { id: {
+          initialize: vi.fn(),
+          prompt: cb => cb({ isNotDisplayed: () => true, isSkippedMoment: () => false })
+        } }
+      };
+      const auth = new AuthManager({
+        clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
+      });
+      await expect(auth.entrarComGoogle()).rejects.toThrow();
+    });
+
+    it('entrarComGoogle rejeita se o jogador cancelar (sem credencial)', async () => {
+      let callbackGoogle;
+      globalThis.google = {
+        accounts: { id: {
+          initialize: cfg => { callbackGoogle = cfg.callback; },
+          prompt: () => callbackGoogle({ credential: null })
+        } }
+      };
+      const auth = new AuthManager({
+        clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
+      });
+      await expect(auth.entrarComGoogle()).rejects.toThrow(/cancelado/);
+    });
+
+    it('propaga falha no carregamento do script', async () => {
       const auth = new AuthManager({
         clientId: 'abc', storage: localStorage,
         carregarScript: () => Promise.reject(new Error('offline'))
       });
-      const aoFalhar = vi.fn();
-      await auth.renderizarBotao({}, vi.fn(), aoFalhar);
-      expect(aoFalhar).toHaveBeenCalledWith(expect.any(Error));
+      await expect(auth.entrarComGoogle()).rejects.toThrow('offline');
+    });
+  });
+
+  describe('idToken entre recarregamentos', () => {
+    const daquiUmaHora = () => Math.floor(Date.now() / 1000) + 3600;
+
+    function logarComGoogle(payload) {
+      let cb;
+      globalThis.google = {
+        accounts: { id: {
+          initialize: c => { cb = c.callback; },
+          prompt: () => cb({ credential: jwtFalso(payload) })
+        } }
+      };
+      const auth = new AuthManager({
+        clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
+      });
+      return auth.entrarComGoogle().then(() => auth);
+    }
+
+    it('tokenValido reflete a validade do exp', async () => {
+      const semLogin = new AuthManager({ storage: localStorage });
+      expect(semLogin.tokenValido()).toBe(false);
+
+      const auth = await logarComGoogle({ sub: '1', name: 'A', exp: daquiUmaHora() });
+      expect(auth.tokenValido()).toBe(true);
+    });
+
+    it('uma nova instância reaproveita o token salvo se ainda vale', async () => {
+      await logarComGoogle({ sub: '7', name: 'Bit', exp: daquiUmaHora() });
+
+      const outra = new AuthManager({ storage: localStorage });
+      expect(outra.usuario).toMatchObject({ id: '7', provedor: 'google' });
+      expect(outra.tokenValido()).toBe(true);
+      expect(outra.obterToken()).toBeTypeOf('string');
+    });
+
+    it('token expirado não é reaproveitado, mas o perfil continua', () => {
+      localStorage.setItem(CHAVE_SESSAO, JSON.stringify({
+        id: '7', nome: 'Bit', provedor: 'google',
+        idToken: 'x.y.z', exp: Date.now() - 1000
+      }));
+      const auth = new AuthManager({ storage: localStorage });
+      expect(auth.usuario).toMatchObject({ id: '7', provedor: 'google' });
+      expect(auth.tokenValido()).toBe(false);
+      expect(auth.obterToken()).toBeNull();
+    });
+
+    it('renovarTokenSilencioso pega um token novo pelo One Tap', async () => {
+      localStorage.setItem(CHAVE_SESSAO, JSON.stringify({ id: '7', nome: 'Bit', provedor: 'google' }));
+      let cb;
+      globalThis.google = {
+        accounts: { id: {
+          initialize: c => { cb = c.callback; },
+          prompt: () => cb({ credential: jwtFalso({ sub: '7', name: 'Bit', exp: daquiUmaHora() }) })
+        } }
+      };
+      const auth = new AuthManager({
+        clientId: 'abc', storage: localStorage, carregarScript: () => Promise.resolve()
+      });
+      expect(auth.tokenValido()).toBe(false);
+
+      const renovado = await auth.renovarTokenSilencioso();
+      expect(renovado).toMatchObject({ id: '7', provedor: 'google' });
+      expect(auth.tokenValido()).toBe(true);
+    });
+
+    it('renovarTokenSilencioso devolve null sem client id', async () => {
+      localStorage.setItem(CHAVE_SESSAO, JSON.stringify({ id: '7', nome: 'Bit', provedor: 'google' }));
+      const auth = new AuthManager({ storage: localStorage, carregarScript: () => Promise.resolve() });
+      expect(await auth.renovarTokenSilencioso()).toBeNull();
     });
   });
 

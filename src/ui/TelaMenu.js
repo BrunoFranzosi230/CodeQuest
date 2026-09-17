@@ -20,13 +20,15 @@ export function criarTelaMenu({ aoJogar, aoComoJogar, aoSair, usuario }) {
       <button class="btn btn-gigante btn-verde" data-acao="jogar">
         <span class="ico">▶</span> JOGAR
       </button>
-      <button class="btn btn-medio btn-azul" data-acao="ajuda">
-        <span class="ico">❓</span> Como jogar
-      </button>
-      <p class="login-nota">
-        ${ehConvidado ? 'Jogando como convidado' : `Olá, ${escaparHtml(nome)}!`}
-        <button class="link-sair" data-acao="sair">${ehConvidado ? 'entrar' : 'sair'}</button>
-      </p>
+      <div class="menu-linha">
+        <button class="btn btn-medio btn-azul" data-acao="ajuda">
+          <span class="ico">❓</span> Como jogar
+        </button>
+        <button class="btn btn-medio btn-vermelho" data-acao="sair">
+          <span class="ico">${ehConvidado ? '🔑' : '🚪'}</span> ${ehConvidado ? 'Entrar' : 'Sair'}
+        </button>
+      </div>
+      <p class="login-nota">${ehConvidado ? 'Jogando como convidado' : `Olá, ${escaparHtml(nome)}!`}</p>
     </div>`;
 
   tela.querySelector('[data-acao="jogar"]').addEventListener('click', aoJogar);
