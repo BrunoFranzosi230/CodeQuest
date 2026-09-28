@@ -15,7 +15,7 @@ export default defineConfig({
     include: ['tests/**/*.test.js'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov', 'html'],
+      reporter: ['text', 'lcov', 'html', 'json-summary'],
       // "50% dos sistemas de lógica de jogo" (Portfolio Directions — Jogos
       // Digitais). Os sistemas de lógica são o domínio e a camada de dados;
       // cenas, UI e áudio são renderização e ficam fora da métrica.
