@@ -52,7 +52,7 @@ jobs:
 
       - name: Guardar relatório de cobertura
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: cobertura
           path: coverage/
@@ -62,7 +62,7 @@ jobs:
       # Só roda depois de configurar sonar-project.properties e o segredo SONAR_TOKEN
       - name: SonarCloud
         if: env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v8
 
   build:
     name: Build de produção
@@ -80,7 +80,7 @@ jobs:
       - run: npm run build
 
       - name: Guardar build
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
