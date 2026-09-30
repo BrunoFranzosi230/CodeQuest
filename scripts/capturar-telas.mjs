@@ -1,4 +1,6 @@
 /* Captura os mockups do GDD a partir do jogo rodando. */
+// gm/ui existem na página (expostos por main.js em dev) — usados dentro de pag.evaluate.
+/* global gm, ui */
 import puppeteer from 'puppeteer-core';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';

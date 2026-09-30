@@ -10,3 +10,6 @@ docs/
 .env
 .env.*
 !.env.example
+
+# Gerado por `npm run coverage` (o CI gera o seu e publica como artefato)
+coverage/

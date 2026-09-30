@@ -5,7 +5,31 @@
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**']
+    ignores: ['dist/**', '**/node_modules/**', 'coverage/**']
+  },
+
+  // Scripts de manutenção e a Lambda da AWS — rodam no Node
+  {
+    files: ['scripts/**/*.{js,mjs}', 'aws/**/*.{js,mjs}'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      globals: {
+        process: 'readonly',
+        Buffer: 'readonly',
+        console: 'readonly',
+        URL: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly'
+      }
+    },
+    rules: {
+      'no-undef': 'error',
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-var': 'error',
+      'prefer-const': 'warn',
+      'eqeqeq': ['warn', 'smart']
+    }
   },
 
   // Código da aplicação — roda no navegador
