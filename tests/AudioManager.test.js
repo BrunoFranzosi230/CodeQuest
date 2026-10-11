@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { AudioManager } from '../src/core/AudioManager.js';
-import { MUNDOS } from '../src/data/mundos.js';
+import { MUNDOS, MUSICA_TEMA } from '../src/data/mundos.js';
 
 /** AudioContext de mentira: registra o que foi tocado, sem emitir som. */
 function contextoFalso() {
@@ -160,6 +160,90 @@ describe('AudioManager', () => {
 
     it('parar duas vezes seguidas não quebra', () => {
       expect(() => { som.pararMusica(); som.pararMusica(); }).not.toThrow();
+    });
+  });
+
+  describe('tema do jogo (fora das fases)', () => {
+    it('o tema tem arpejo de reserva configurado', () => {
+      expect(MUSICA_TEMA.notas.length).toBeGreaterThan(0);
+      expect(MUSICA_TEMA.bpm).toBeGreaterThan(0);
+    });
+
+    it('toca o tema e marca a trilha como "jogo"', async () => {
+      await som.tocarMusicaDoJogo();
+      expect(som._trilha).toBe('jogo');
+      expect(som._timerMusica).not.toBeNull();
+    });
+
+    it('pedir o tema de novo não reinicia a música (menu → mapa)', async () => {
+      await som.tocarMusicaDoJogo();
+      const timer = som._timerMusica;
+      await som.tocarMusicaDoJogo();
+      expect(som._timerMusica).toBe(timer);
+    });
+
+    it('fase → mapa → fase alterna entre mundo e tema', async () => {
+      await som.tocarMusicaDoJogo();
+      await som.tocarMusicaDoMundo(2);
+      expect(som._trilha).toBe('mundo2');
+      await som.tocarMusicaDoJogo();
+      expect(som._trilha).toBe('jogo');
+    });
+
+    it('repetir uma fase do mesmo mundo não reinicia a música', async () => {
+      await som.tocarMusicaDoMundo(1);
+      const timer = som._timerMusica;
+      await som.tocarMusicaDoMundo(1);
+      expect(som._timerMusica).toBe(timer);
+    });
+
+    it('religar o som no mapa volta a tocar o tema', async () => {
+      await som.tocarMusicaDoJogo();
+      som.alternar();
+      expect(som._timerMusica).toBeNull();
+      som.alternar();
+      await new Promise(r => setTimeout(r, 10));
+      expect(som._trilha).toBe('jogo');
+      expect(som._timerMusica).not.toBeNull();
+    });
+
+    it('com o som desligado, trocar de tela não toca, mas lembra a trilha', async () => {
+      som.ligado = false;
+      await som.tocarMusicaDoJogo();
+      expect(som._timerMusica).toBeNull();
+      som.alternar();
+      await new Promise(r => setTimeout(r, 10));
+      expect(som._trilha).toBe('jogo');
+      expect(som._timerMusica).not.toBeNull();
+    });
+
+    it('sair da fase durante o download não deixa a música do mundo tocar', async () => {
+      MUNDOS[0].musica.arquivo = 'mundo1.ogg';
+      let liberar;
+      vi.stubGlobal('fetch', vi.fn(() => new Promise(r => { liberar = r; })));
+
+      const mundo = som.tocarMusicaDoMundo(1);
+      await som.tocarMusicaDoJogo();
+      liberar({ ok: true, arrayBuffer: async () => new ArrayBuffer(8) });
+      await mundo;
+
+      expect(som._trilha).toBe('jogo');
+      expect(som._faixaTocando).toBeNull();
+      delete MUNDOS[0].musica.arquivo;
+      vi.unstubAllGlobals();
+    });
+
+    it('antes do primeiro clique (contexto suspenso) não acumula notas', async () => {
+      vi.useFakeTimers();
+      ctx.state = 'suspended';
+      await som.tocarMusicaDoJogo();
+      vi.advanceTimersByTime(3000);
+      expect(ctx.criados).toHaveLength(0);
+
+      ctx.state = 'running';
+      vi.advanceTimersByTime(1000);
+      expect(ctx.criados.length).toBeGreaterThan(0);
+      vi.useRealTimers();
     });
   });
 

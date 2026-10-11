@@ -138,7 +138,7 @@ export class UIManager {
   /** Tela de entrada: login com Google ou modo convidado. */
   _mostrarLogin() {
     this._limparTela();
-    this.som.pararMusica();
+    this.som.tocarMusicaDoJogo();
     const tela = criarTelaLogin({
       googleDisponivel: this.auth.googleDisponivel,
       aoEntrarGoogle: async () => {
@@ -175,6 +175,7 @@ export class UIManager {
 
   _mostrarMenu() {
     this._limparTela();
+    this.som.tocarMusicaDoJogo();
     this.raiz.appendChild(criarTelaMenu({
       usuario: this.gm.usuario,
       aoJogar: () => { this.som.clique(); this.gm.irParaMapa(); },
@@ -192,10 +193,9 @@ export class UIManager {
 
   _mostrarMapa() {
     this._limparTela();
-    // A tela de escolha de fases não tem trilha própria: a música do mundo só
-    // começa ao entrar numa fase. Silencia aqui para o caso de ter voltado de
-    // uma fase com a música tocando.
-    this.som.pararMusica();
+    // Fora das fases toca o tema do jogo; a música do mundo começa só ao entrar
+    // numa fase (GameplayScene) e volta para o tema ao sair dela.
+    this.som.tocarMusicaDoJogo();
     this.raiz.appendChild(criarTelaMapa(this.gm.storage, {
       som: this.som,
       aoVoltar: () => { this.som.clique(); this.gm.irParaMenu(); },

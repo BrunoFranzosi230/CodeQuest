@@ -7,12 +7,20 @@
  * ── Música ───────────────────────────────────────────────────────────────────
  * Cada mundo tem um tema. O campo `musica` aceita duas formas:
  *
- *   arquivo: 'mundo1.ogg'   toca a faixa gravada em public/assets/audio/musica/
+ *   arquivo: 'mundo1.mp3'   toca a faixa gravada em public/assets/audio/musica/
  *   notas/bpm/onda         arpejo sintetizado — o padrão enquanto não há faixa
  *
  * Os dois podem coexistir: se o arquivo faltar ou o navegador não suportar o
  * formato, o jogo volta sozinho para o arpejo. Ver docs/MUSICA.md.
+ *
+ * Fora das fases (login, menu e escolha de mundo) toca o tema do jogo,
+ * `MUSICA_TEMA`, que segue o mesmo formato.
  */
+
+export const MUSICA_TEMA = {
+   arquivo:'tema.mp3', volume:0.35, 
+  /*notas: [523, 659, 784, 1046, 784, 659, 587, 784], bpm: 112, onda: 'triangle'*/
+};
 
 export const MUNDOS = [
   {
@@ -25,19 +33,19 @@ export const MUNDOS = [
     id: 2, nome: 'Fábrica de Engrenagens', emoji: '⚙️', conceito: 'Repetição',
     css: '#C084FC',
     tema: { chao:0xCBD5E1, chaoAlt:0xE2E8F0, borda:0x64748B, parede:0x94A3B8, paredeEsc:0x64748B },
-    musica: { /* arquivo:'mundo2.ogg', volume:0.35, */ notas:[440,554,659,554,494,622,740,622], bpm:126, onda:'square' }
+    musica: { /* arquivo:'mundo2.mp3', volume:0.35, */ notas:[440,554,659,554,494,622,740,622], bpm:126, onda:'square' }
   },
   {
     id: 3, nome: 'Caverna Misteriosa', emoji: '🔦', conceito: 'Condicionais',
     css: '#FDBA74',
     tema: { chao:0xC4B5FD, chaoAlt:0xDDD6FE, borda:0x6D28D9, parede:0x7E5BB8, paredeEsc:0x553095 },
-    musica: { /* arquivo:'mundo3.ogg', volume:0.35, */ notas:[392,466,587,466,440,523,659,523], bpm:100, onda:'triangle' }
+    musica: { /* arquivo:'mundo3.mp3', volume:0.35, */ notas:[392,466,587,466,440,523,659,523], bpm:100, onda:'triangle' }
   },
   {
     id: 4, nome: 'Cidade Futurista', emoji: '🌆', conceito: 'Funções',
     css: '#F9A8D4',
     tema: { chao:0x5EEAD4, chaoAlt:0x99F6E4, borda:0x0F766E, parede:0x38BDF8, paredeEsc:0x0369A1 },
-    musica: { /* arquivo:'mundo4.ogg', volume:0.35, */ notas:[587,740,880,740,659,830,988,830], bpm:130, onda:'square' }
+    musica: { /* arquivo:'mundo4.mp3', volume:0.35, */ notas:[587,740,880,740,659,830,988,830], bpm:130, onda:'square' }
   }
 ];
 
