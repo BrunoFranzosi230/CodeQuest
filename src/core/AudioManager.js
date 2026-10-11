@@ -4,7 +4,7 @@
  * Zero arquivos, zero download, zero questão de licenciamento de assets.
  */
 
-import { mundoPorId } from '../data/mundos.js';
+import { mundoPorId, MUSICA_TEMA } from '../data/mundos.js';
 
 export class AudioManager {
   constructor() {
@@ -14,6 +14,10 @@ export class AudioManager {
     this._mundoAtual = 1;
     this._faixas = new Map();      // arquivo → AudioBuffer decodificado
     this._faixaTocando = null;
+    this._trilha = null;           // 'jogo' | 'mundoN' — o que deveria estar tocando
+    this._musica = null;           // config da trilha (ver mundos.js)
+    this._tocando = false;
+    this._gestoArmado = false;
   }
 
   _acordar() {
@@ -22,8 +26,28 @@ export class AudioManager {
       if (!AC) { this.ligado = false; return null; }
       this.ctx = new AC();
     }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+      this._destravarNoPrimeiroGesto();
+    }
     return this.ctx;
+  }
+
+  /**
+   * O navegador só libera áudio depois de uma interação. O tema do jogo é
+   * pedido já na abertura, então o primeiro clique/tecla em qualquer lugar
+   * destrava o contexto e a música começa ali.
+   */
+  _destravarNoPrimeiroGesto() {
+    if (this._gestoArmado || typeof document === 'undefined') return;
+    this._gestoArmado = true;
+    const eventos = ['pointerdown', 'keydown', 'touchstart'];
+    const destravar = () => {
+      this.ctx?.resume();
+      eventos.forEach(ev => document.removeEventListener(ev, destravar, true));
+      this._gestoArmado = false;
+    };
+    eventos.forEach(ev => document.addEventListener(ev, destravar, true));
   }
 
   /** Uma nota simples com envelope de ataque/decaimento. */
@@ -64,9 +88,11 @@ export class AudioManager {
   erro()     { this._melodia([[380,0,0.14],[300,0.12,0.18],[220,0.26,0.28]], 'sawtooth', 0.12); }
   estrela()  { this.nota(1200, 0.1, 'sine', 0.13); }
 
-  // ── Música de fundo por mundo (GDD 8.2) ───────────────────────────────────
+  // ── Música de fundo (GDD 8.2) ─────────────────────────────────────────────
   //
-  // Há dois modos, e o jogo escolhe sozinho:
+  // Duas trilhas: o tema do jogo (login, menu e escolha de mundo) e o tema de
+  // cada mundo (dentro das fases). Cada uma tem dois modos, e o jogo escolhe
+  // sozinho:
   //
   //   1. Faixa gravada — se existir o arquivo declarado em `mundos.js`
   //      (`musica.arquivo`), ele é tocado em laço contínuo.
@@ -77,19 +103,38 @@ export class AudioManager {
   // O laço usa `AudioBufferSourceNode.loop`, que emenda o fim no começo com
   // precisão de amostra — sem o silêncio que os players de `<audio>` inserem.
 
-  async tocarMusicaDoMundo(mundoId) {
-    this._mundoAtual = mundoId;
-    this.pararMusica();
+  /** Tema do jogo: fora das fases. */
+  tocarMusicaDoJogo() {
+    return this._tocarTrilha('jogo', MUSICA_TEMA);
+  }
 
-    const { musica } = mundoPorId(mundoId);
+  tocarMusicaDoMundo(mundoId) {
+    this._mundoAtual = mundoId;
+    return this._tocarTrilha(`mundo${mundoId}`, mundoPorId(mundoId).musica);
+  }
+
+  /**
+   * Troca a trilha. Pedir a que já está tocando não reinicia — navegar entre
+   * menu e mapa, ou repetir uma fase do mesmo mundo, mantém a música corrida.
+   */
+  async _tocarTrilha(chave, musica) {
+    if (this._trilha === chave && this._tocando) return;
+
+    this.pararMusica();
+    this._trilha = chave;
+    this._musica = musica;
+    if (!this.ligado) return;          // lembra a trilha para quando religar
+    this._tocando = true;
+
     if (musica.arquivo) {
       const buffer = await this._carregarFaixa(musica.arquivo);
-      if (buffer && this._mundoAtual === mundoId) {
+      if (this._trilha !== chave || !this._tocando) return;   // trocou durante o download
+      if (buffer) {
         this._tocarFaixa(buffer, musica.volume ?? 0.35);
         return;
       }
     }
-    this._iniciarMusica();
+    this._iniciarMusica(musica);
   }
 
   /** Baixa e decodifica a faixa uma vez; devolve null se não der. */
@@ -136,19 +181,22 @@ export class AudioManager {
     this._faixaTocando = { fonte, ganho };
   }
 
-  _iniciarMusica() {
+  _iniciarMusica(musica) {
     if (!this.ligado || this._timerMusica) return;
-    const { musica } = mundoPorId(this._mundoAtual);
+    if (!this._acordar()) return;
     const intervalo = 60000 / musica.bpm / 2;
     let i = 0;
     this._timerMusica = setInterval(() => {
-      if (!this.ligado) return;
+      // antes do primeiro gesto o contexto está suspenso: agendar notas ali
+      // as acumularia todas para tocar de uma vez quando destravar
+      if (!this.ligado || this.ctx?.state !== 'running') return;
       this.nota(musica.notas[i % musica.notas.length], 0.16, musica.onda, 0.035);
       i++;
     }, intervalo);
   }
 
   pararMusica() {
+    this._tocando = false;
     clearInterval(this._timerMusica);
     this._timerMusica = null;
 
@@ -166,17 +214,12 @@ export class AudioManager {
     }
   }
 
-  /**
-   * Liga/desliga todo o áudio.
-   * @param {boolean} retomarMusica quando religa, retoma a música do mundo atual.
-   *   As telas sem trilha (menu, mapa de fases) passam `false` para não
-   *   começar uma música que não deveria tocar ali.
-   */
-  alternar(retomarMusica = true) {
+  /** Liga/desliga todo o áudio. Ao religar, retoma a trilha da tela atual. */
+  alternar() {
     this.ligado = !this.ligado;
     if (this.ligado) {
       this.clique();
-      if (retomarMusica) this.tocarMusicaDoMundo(this._mundoAtual);
+      if (this._musica) this._tocarTrilha(this._trilha, this._musica);
     } else {
       this.pararMusica();
     }

@@ -25,9 +25,7 @@ export function criarTelaMapa(storage, { aoVoltar, aoEscolherFase, som }) {
 
   const btnSom = tela.querySelector('[data-acao="som"]');
   btnSom.addEventListener('click', e => {
-    // `false`: a tela de escolha não tem trilha, então religar o som aqui não
-    // deve fazer nenhuma música começar a tocar.
-    const ligado = som ? som.alternar(false) : true;
+    const ligado = som ? som.alternar() : true;
     e.currentTarget.querySelector('.ico').textContent = ligado ? '🔊' : '🔇';
   });
   const container = tela.querySelector('.mundos');
