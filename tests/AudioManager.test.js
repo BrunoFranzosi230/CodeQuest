@@ -164,6 +164,11 @@ describe('AudioManager', () => {
   });
 
   describe('tema do jogo (fora das fases)', () => {
+    // O tema pode ter MP3 configurado; aqui a faixa "não existe" para os testes
+    // não dependerem da rede e exercitarem o arpejo de reserva.
+    beforeEach(() => vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 404 }))));
+    afterEach(() => vi.unstubAllGlobals());
+
     it('o tema tem arpejo de reserva configurado', () => {
       expect(MUSICA_TEMA.notas.length).toBeGreaterThan(0);
       expect(MUSICA_TEMA.bpm).toBeGreaterThan(0);
@@ -220,7 +225,9 @@ describe('AudioManager', () => {
     it('sair da fase durante o download não deixa a música do mundo tocar', async () => {
       MUNDOS[0].musica.arquivo = 'mundo1.ogg';
       let liberar;
-      vi.stubGlobal('fetch', vi.fn(() => new Promise(r => { liberar = r; })));
+      vi.stubGlobal('fetch', vi.fn(url => url.includes('mundo1')
+        ? new Promise(r => { liberar = r; })          // download do mundo fica pendurado
+        : Promise.resolve({ ok: false, status: 404 })));
 
       const mundo = som.tocarMusicaDoMundo(1);
       await som.tocarMusicaDoJogo();
@@ -230,7 +237,6 @@ describe('AudioManager', () => {
       expect(som._trilha).toBe('jogo');
       expect(som._faixaTocando).toBeNull();
       delete MUNDOS[0].musica.arquivo;
-      vi.unstubAllGlobals();
     });
 
     it('antes do primeiro clique (contexto suspenso) não acumula notas', async () => {

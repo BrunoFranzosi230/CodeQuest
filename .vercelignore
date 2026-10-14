@@ -1,0 +1,18 @@
+# A Vercel hospeda só o frontend (site estático gerado pelo Vite).
+# O backend roda na AWS (API Gateway + Lambda + RDS) e não sobe para cá.
+aws/
+
+# Ferramentas de desenvolvimento, testes e relatórios — não entram no build
+scripts/
+tests/
+coverage/
+docs/
+dist/
+.github/
+.vscode/
+sonar-project.properties
+eslint.config.js
+
+# Config local (as variáveis vão no painel da Vercel)
+.env
+.env.*

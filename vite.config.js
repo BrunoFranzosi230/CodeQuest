@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  // Nome do repositório no GitHub Pages (https://usuario.github.io/CodeQuest/)
-  base: '/CodeQuest/',
+  // Na Vercel o site fica na raiz do domínio; no GitHub Pages, na subpasta com
+  // o nome do repositório (https://usuario.github.io/CodeQuest/). A Vercel
+  // define VERCEL=1 durante o build.
+  base: process.env.VERCEL ? '/' : '/CodeQuest/',
 
   server: {
     port: 5173,
