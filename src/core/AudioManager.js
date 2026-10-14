@@ -183,6 +183,7 @@ export class AudioManager {
 
   _iniciarMusica(musica) {
     if (!this.ligado || this._timerMusica) return;
+    if (!musica.notas?.length || !musica.bpm) return;   // sem arpejo de reserva: fica em silêncio
     if (!this._acordar()) return;
     const intervalo = 60000 / musica.bpm / 2;
     let i = 0;

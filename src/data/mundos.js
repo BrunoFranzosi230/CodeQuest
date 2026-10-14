@@ -18,8 +18,9 @@
  */
 
 export const MUSICA_TEMA = {
-   arquivo:'tema.mp3', volume:0.35, 
-  /*notas: [523, 659, 784, 1046, 784, 659, 587, 784], bpm: 112, onda: 'triangle'*/
+  arquivo: 'tema.mp3', volume: 0.35,
+  // reserva: toca se o MP3 não carregar — não remova
+  notas: [523, 659, 784, 1046, 784, 659, 587, 784], bpm: 112, onda: 'triangle'
 };
 
 export const MUNDOS = [
