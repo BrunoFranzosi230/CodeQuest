@@ -54,9 +54,10 @@ export class ProgressoStorage {
   }
 
   /**
-   * Concilia o progresso local com o da nuvem. Regra: a nuvem manda quando tem
-   * dados; se a nuvem está vazia e o local não (ex.: jogou de convidado e
-   * depois logou), o local sobe. Chamado ao entrar, antes do menu.
+   * Concilia o progresso local com o da nuvem, fase a fase, ficando com o
+   * melhor de cada lado (mais estrelas, menos blocos). Nada se perde se o
+   * jogador avançou num aparelho que estava sem conexão com a nuvem. Se o
+   * resultado tem algo que a nuvem não tinha, ele sobe. Chamado ao entrar.
    * @returns {Promise<object>} o progresso já conciliado.
    */
   async sincronizar() {
@@ -70,19 +71,32 @@ export class ProgressoStorage {
       return this.carregar();
     }
 
-    const local = this.carregar();
-    const nuvemTemDados = this._temFases(daNuvem);
-    const localTemDados = this._temFases(local);
+    const nuvem = this._migrar(daNuvem ?? this.vazio());
+    const conciliado = this._mesclar(this.carregar(), nuvem);
 
-    if (nuvemTemDados) {
-      const conciliado = this._migrar(daNuvem);
-      this._gravarLocal(conciliado);
-      return conciliado;
+    this._gravarLocal(conciliado);
+    if (JSON.stringify(conciliado.fasesConcluidas) !== JSON.stringify(nuvem.fasesConcluidas)) {
+      this._empurrarRemoto(conciliado);
     }
-    if (localTemDados) {
-      this._empurrarRemoto(local);   // primeira subida do progresso do convidado
+    return conciliado;
+  }
+
+  /** Une dois progressos: por fase, o maior nº de estrelas e o menor de blocos. */
+  _mesclar(a, b) {
+    const fases = { ...a.fasesConcluidas };
+    for (const [id, f] of Object.entries(b.fasesConcluidas)) {
+      const atual = fases[id];
+      fases[id] = !atual ? f : {
+        estrelas: Math.max(atual.estrelas ?? 0, f.estrelas ?? 0),
+        menorNumeroBlocos: Math.min(atual.menorNumeroBlocos ?? Infinity, f.menorNumeroBlocos ?? Infinity),
+        concluidaEm: [atual.concluidaEm, f.concluidaEm].filter(Boolean).sort().pop() ?? null
+      };
     }
-    return local;
+    return {
+      versao: VERSAO_SCHEMA,
+      fasesConcluidas: fases,
+      ultimaFaseJogada: b.ultimaFaseJogada ?? a.ultimaFaseJogada ?? null
+    };
   }
 
   vazio() {
@@ -131,9 +145,6 @@ export class ProgressoStorage {
       });
   }
 
-  _temFases(dados) {
-    return Boolean(dados && Object.keys(dados.fasesConcluidas ?? {}).length);
-  }
 
   /** Migra progressos de versões antigas do schema. */
   _migrar(dados) {

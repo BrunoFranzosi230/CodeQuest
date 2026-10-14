@@ -36,6 +36,36 @@ describe('ProgressoStorage + backend remoto', () => {
   });
 
   describe('sincronizar', () => {
+    it('mescla local e nuvem: nada se perde e o resultado sobe', async () => {
+      // nuvem: fases 1 e 2 · local (jogou sem nuvem em outro aparelho): fases 2 e 3
+      const remoto = fakeRemoto(umProgresso({
+        'mundo1-fase1': { estrelas: 3, menorNumeroBlocos: 4 },
+        'mundo1-fase2': { estrelas: 1, menorNumeroBlocos: 9 }
+      }));
+      const s = new ProgressoStorage();
+      s.definirContexto({ chave: 'codequest_progresso__g-1' });
+      s.registrarConclusao('mundo1-fase2', 3, 5);
+      s.registrarConclusao('mundo1-fase3', 2, 8);
+      s.definirContexto({ chave: 'codequest_progresso__g-1', remoto });
+
+      const r = await s.sincronizar();
+      await escoar();
+
+      expect(Object.keys(r.fasesConcluidas).sort()).toEqual(['mundo1-fase1', 'mundo1-fase2', 'mundo1-fase3']);
+      expect(r.fasesConcluidas['mundo1-fase2']).toMatchObject({ estrelas: 3, menorNumeroBlocos: 5 });
+      expect(remoto._dados.fasesConcluidas['mundo1-fase3'].estrelas).toBe(2);
+    });
+
+    it('se a nuvem já tem tudo, não reenvia', async () => {
+      const remoto = fakeRemoto(umProgresso({ 'mundo1-fase1': { estrelas: 3, menorNumeroBlocos: 4 } }));
+      const s = new ProgressoStorage();
+      s.definirContexto({ chave: 'codequest_progresso__g-1', remoto });
+
+      await s.sincronizar();
+      await escoar();
+      expect(remoto.persistir).not.toHaveBeenCalled();
+    });
+
     it('a nuvem manda quando tem dados', async () => {
       const remoto = fakeRemoto(umProgresso({ 'mundo1-fase1': { estrelas: 3, menorNumeroBlocos: 4 } }));
       const s = new ProgressoStorage();
