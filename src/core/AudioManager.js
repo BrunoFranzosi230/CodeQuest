@@ -32,6 +32,8 @@ export class AudioManager {
     this._musica = null;           // config da trilha (ver mundos.js)
     this._tocando = false;
     this._gestoArmado = false;
+    /** Chamado quando uma faixa gravada começa a tocar — a UI mostra o crédito. */
+    this.aoComecarFaixa = null;
   }
 
   _acordar() {
@@ -200,6 +202,7 @@ export class AudioManager {
       if (this._trilha !== chave || !this._tocando) return;   // trocou durante o download
       if (buffer) {
         this._tocarFaixa(buffer, musica.volume ?? 0.35);
+        this.aoComecarFaixa?.(musica);
         return;
       }
     }

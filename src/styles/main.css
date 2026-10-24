@@ -254,6 +254,18 @@ body {
 }
 .balao-ico { font-size: 26px; }
 
+/* crédito da música: pílula pequena e translúcida na base do tabuleiro, que
+   aparece e some sozinha; não recebe toque, então nunca atrapalha o jogo */
+.credito-musica {
+  position: absolute; bottom: 10px; left: 50%; transform: translate(-50%, 6px);
+  background: rgba(255, 255, 255, .85); color: var(--texto-fraco);
+  border: 2px solid rgba(43, 33, 64, .25); border-radius: 99px;
+  padding: 4px 12px; font-size: 13px; font-weight: 700; white-space: nowrap;
+  pointer-events: none; z-index: 5; opacity: 0;
+  transition: opacity .6s ease, transform .6s ease;
+}
+.credito-musica.visivel { opacity: 1; transform: translate(-50%, 0); }
+
 /* ================= RODAPÉ ================= */
 .rodape {
   display: flex; gap: 12px; align-items: center; justify-content: center;
