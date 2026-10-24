@@ -149,8 +149,10 @@ export class ProgressoStorage {
 
   /**
    * Migra progressos de versões antigas do schema e higieniza o que veio de
-   * fora (nuvem ou localStorage): só passam fases que existem, com estrelas
-   * 0–3 e números válidos. Monta um objeto novo — campo desconhecido não entra.
+   * fora (nuvem ou localStorage). Nenhum texto recebido é reaproveitado: ids
+   * de fase vêm da lista oficial, números são convertidos e a data é
+   * reconstruída a partir do instante que ela representa. Campo desconhecido
+   * não entra.
    */
   _migrar(dados) {
     if (!dados || typeof dados !== 'object') return this.vazio();
@@ -161,19 +163,18 @@ export class ProgressoStorage {
       if (!f || typeof f !== 'object') continue;
       const estrelas = Number(f.estrelas);
       const blocos = Number(f.menorNumeroBlocos);
-      const data = typeof f.concluidaEm === 'string' && !Number.isNaN(Date.parse(f.concluidaEm))
-        ? f.concluidaEm : null;
+      const instante = typeof f.concluidaEm === 'string' ? Date.parse(f.concluidaEm) : Number.NaN;
       fasesConcluidas[id] = {
         estrelas: Number.isInteger(estrelas) ? Math.min(Math.max(estrelas, 0), 3) : 0,
         menorNumeroBlocos: Number.isInteger(blocos) && blocos > 0 ? blocos : null,
-        concluidaEm: data
+        concluidaEm: Number.isFinite(instante) ? new Date(instante).toISOString() : null
       };
     }
 
     return {
       versao: VERSAO_SCHEMA,
       fasesConcluidas,
-      ultimaFaseJogada: ORDEM_FASES.includes(dados.ultimaFaseJogada) ? dados.ultimaFaseJogada : null
+      ultimaFaseJogada: ORDEM_FASES.find(id => id === dados.ultimaFaseJogada) ?? null
     };
   }
 
