@@ -13,7 +13,9 @@ import { mundoPorId } from '../data/mundos.js';
 import { TILE_TEX } from './BootScene.js';
 import { contarBlocos } from '../data/blocos.js';
 
-const CELULA_MIN = 26;
+// mínimo baixo de propósito: no celular em pé o tabuleiro pode ficar baixo, e
+// uma casa maior que o espaço faria o tabuleiro sair da área visível
+const CELULA_MIN = 18;
 const CELULA_MAX = 74;
 const ESPACO = 3;      // vão entre tiles
 const MOLDURA = 20;    // respiro do tabuleiro dentro do canvas

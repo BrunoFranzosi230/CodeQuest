@@ -86,8 +86,13 @@ body {
 .btn-roxo     { background: var(--roxo);     box-shadow: 0 var(--profund) 0 var(--roxo-esc);     --cor-esc: var(--roxo-esc); }
 
 /* ================= MENU ================= */
-.tela-menu { align-items: center; justify-content: center; }
-.menu-box { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+/* Rola quando não cabe (celular deitado); a margem automática centraliza sem
+   cortar o topo, o que `justify-content: center` faria ao transbordar. */
+.tela-menu { align-items: center; justify-content: flex-start; overflow-y: auto; }
+.menu-box {
+  text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px;
+  margin: auto 0;
+}
 
 .logo {
   font-size: clamp(48px, 9vw, 86px); line-height: 1; color: #fff; letter-spacing: -1px;
@@ -232,13 +237,17 @@ body {
 .seq-acoes { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-shrink: 0; }
 
 /* ================= BALÃO DE FALA ================= */
+/* `width: max-content` + teto: sem isto o balão (absoluto, com left: 50%)
+   ficava com no máximo metade da largura e quebrava uma palavra por linha. */
 .balao-bit {
   position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
   background: #fff; border: var(--borda) solid var(--contorno); border-radius: 20px;
-  padding: 12px 22px; font-size: 19px; box-shadow: 0 6px 0 var(--sombra);
-  display: flex; align-items: center; gap: 10px; z-index: 10; max-width: 92%;
+  padding: 12px 22px; font-size: 19px; line-height: 1.3; box-shadow: 0 6px 0 var(--sombra);
+  display: flex; align-items: center; gap: 10px; z-index: 10;
+  width: max-content; max-width: min(92%, 560px); cursor: pointer;
   animation: entrar .3s cubic-bezier(.34, 1.56, .64, 1);
 }
+.balao-texto { min-width: 0; }
 .balao-bit::after {
   content: ''; position: absolute; bottom: -15px; left: 50%; margin-left: -11px;
   border: 11px solid transparent; border-top-color: var(--contorno);
@@ -297,6 +306,57 @@ body {
   to   { transform: translateY(105vh) rotate(760deg); opacity: .2; }
 }
 
+/* ================= DICA ================= */
+/* a lâmpada pulsa quando a resposta libera, para a criança notar */
+.btn.chamando { animation: chamar 1s ease-in-out infinite; }
+@keyframes chamar { 50% { transform: scale(1.12); filter: brightness(1.2); } }
+
+/* ================= AJUSTES ================= */
+.modal-config { width: min(440px, 94vw); align-items: stretch; gap: 14px; }
+.modal-config .modal-titulo { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.modal-config > .btn { align-self: center; margin-top: 4px; }
+.cfg-linha {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  background: #fff; border: 3px solid var(--contorno); border-radius: 18px; padding: 10px 14px;
+}
+.cfg-rotulo { font-size: 18px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.cfg-controle { display: flex; align-items: center; gap: 10px; flex: 1; justify-content: flex-end; }
+.cfg-valor { min-width: 48px; text-align: right; font-size: 16px; color: var(--texto-fraco); }
+.modal-config.som-desligado .cfg-volume { filter: grayscale(1); opacity: .5; }
+
+/* Controle deslizante grande e fácil de arrastar com o dedo. A trilha
+   preenchida usa --pct, atualizada pelo JS enquanto arrasta. */
+.cfg-volume {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; min-width: 110px; height: 18px; border-radius: 99px; cursor: pointer;
+  border: 3px solid var(--contorno);
+  background: linear-gradient(90deg, var(--verde) var(--pct, 50%), #E4E0EC var(--pct, 50%));
+  touch-action: none;
+}
+.cfg-volume::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--amarelo); border: 4px solid var(--contorno); box-shadow: 0 3px 0 var(--sombra);
+}
+.cfg-volume::-moz-range-thumb {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--amarelo); border: 4px solid var(--contorno); box-shadow: 0 3px 0 var(--sombra);
+}
+.cfg-volume:focus-visible { outline: 4px solid var(--azul); outline-offset: 3px; }
+
+.cfg-chave {
+  width: 66px; height: 38px; border-radius: 99px; flex-shrink: 0; cursor: pointer;
+  border: 3px solid var(--contorno); background: #E4E0EC; position: relative;
+  transition: background .2s;
+}
+.cfg-chave-bola {
+  position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--contorno); transition: transform .2s;
+}
+.cfg-chave[aria-checked="true"] { background: var(--verde); }
+.cfg-chave[aria-checked="true"] .cfg-chave-bola { transform: translateX(28px); }
+.cfg-chave:focus-visible { outline: 4px solid var(--azul); outline-offset: 3px; }
+
 /* ================= RESPONSIVO ================= */
 @media (max-width: 1100px) {
   /* só a coluna da paleta encolhe: a da sequência precisa da largura cheia
@@ -320,7 +380,7 @@ body {
    O limiar é 900px porque abaixo disso a coluna da sequência não comporta os
    três níveis de aninhamento do Mundo 3 (`até chegar > se > bloco`) sem cortar
    os rótulos. */
-@media (max-width: 900px), (orientation: portrait) {
+@media (max-width: 900px) and (min-height: 521px), (orientation: portrait) {
   :root { --raio: 18px; --profund: 5px; }
   .tela { padding: 8px; }
   .palco { flex-direction: column; gap: 8px; }
@@ -363,6 +423,122 @@ body {
 
 @media (max-width: 520px) {
   .rodape [data-acao="reset"] .txt { display: none; }
+}
+
+/* ---------- Celular em pé ----------
+   Paleta em grade (todos os blocos à vista, sem rolar de lado), programa que
+   quebra linha em vez de sumir pela direita, truque compacto acima dele. */
+@media (max-width: 600px) and (orientation: portrait) {
+  .painel-blocos .painel-titulo { display: none; }
+  .paleta {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 8px; overflow: visible; padding: 2px 2px 6px;
+  }
+  .paleta .bloco { min-width: 0; min-height: 48px; font-size: 14px; padding: 6px 8px; gap: 6px; }
+  .paleta .bloco .bico { width: 28px; height: 28px; font-size: 18px; }
+  .paleta .ico-giro { width: 21px; height: 21px; }
+
+  .area-programa { flex-direction: column; gap: 6px; }
+  .slot-truque { order: -1; }
+  .caixa-funcao { display: flex; align-items: center; gap: 8px; padding: 5px 7px; height: auto; }
+  .funcao-cabeca { padding: 0 2px; font-size: 14px; white-space: nowrap; }
+  .caixa-funcao > :last-child { flex: 1; min-width: 0; }
+
+  /* o tabuleiro tem altura garantida; programa longo rola dentro da caixa */
+  .painel-mapa { min-height: 28vh; }
+  .sequencia { max-height: 17vh; overflow-y: auto; overflow-x: hidden; min-height: 58px; }
+  /* 🗑 e Dica sobem para a linha do título: uma faixa a menos de altura */
+  .painel-seq { position: relative; }
+  .painel-seq .painel-titulo { margin-bottom: 6px; justify-content: flex-start; min-height: 38px; padding-left: 4px; }
+  .seq-acoes { position: absolute; top: 6px; right: 10px; margin: 0; }
+  .seq-acoes .btn-pequeno { min-height: 38px; min-width: 40px; padding: 4px 10px; }
+  .lista-raiz { flex-wrap: wrap; row-gap: 8px; min-width: 0; flex: 1 1 auto; }
+  .sequencia .bloco { min-width: 0; min-height: 46px; font-size: 14px; }
+  .sequencia .bloco .bico { width: 26px; height: 26px; font-size: 18px; }
+
+  .balao-bit { font-size: 15px; padding: 9px 14px; gap: 8px; top: 8px; }
+  .balao-ico { font-size: 20px; }
+
+  .hud { margin-bottom: 8px; }
+  .hud .btn-pequeno { min-height: 44px; min-width: 44px; }
+  .rodape .btn-gigante { min-height: 52px; font-size: 20px; padding: 10px 16px; }
+  .rodape .btn-grande { min-height: 52px; }
+
+  /* título da fase numa linha só: em 3 linhas roubava altura do tabuleiro */
+  .hud-fase { min-width: 0; }
+  .hud-fase strong { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .hud-objetivo { font-size: 17px; flex-shrink: 0; }
+  .hud-estrelas { font-size: 15px; padding: 7px 9px; letter-spacing: 0; }
+  .seq-acoes .btn-pequeno { font-size: 16px; }
+
+  .topo { gap: 8px; margin-bottom: 10px; }
+  .topo h2 { font-size: clamp(17px, 5.4vw, 24px); -webkit-text-stroke-width: 4px; }
+  .placar-estrelas { padding: 8px 12px; font-size: 18px; }
+  .mundos { grid-template-columns: 1fr; gap: 14px; }
+  .mundo { padding: 14px; }
+  .mundo-info h3 { font-size: 19px; }
+  .mundo-emoji { width: 52px; height: 52px; font-size: 30px; }
+  .fase-btn { width: 56px; height: 56px; font-size: 22px; }
+
+  .modal { padding: 22px 18px; }
+  .modal-titulo { font-size: 28px; }
+  .cfg-linha { flex-wrap: wrap; }
+  .cfg-controle { flex-basis: 100%; }
+}
+
+/* ---------- Celular deitado (pouca altura) ----------
+   Três colunas como no computador, só que compactas: empilhar em faixas
+   deixava o tabuleiro com altura zero. */
+@media (orientation: landscape) and (max-height: 520px) {
+  :root { --raio: 16px; --profund: 4px; }
+  .tela { padding: 6px 10px; }
+  .hud { gap: 8px; margin-bottom: 6px; }
+  .hud .btn-pequeno { min-height: 40px; min-width: 40px; padding: 6px 8px; font-size: 18px; }
+  .hud-fase { padding: 4px 12px; gap: 10px; }
+  .hud-fase strong { font-size: 14px; }
+  .hud-objetivo { font-size: 17px; }
+  .hud-estrelas { font-size: 15px; padding: 6px 10px; }
+
+  .palco { gap: 8px; }
+  .painel { border-radius: 18px; box-shadow: 0 4px 0 var(--sombra); }
+  .painel-blocos { width: 142px; padding: 6px; }
+  .painel-seq { width: 236px; padding: 6px; }
+  .painel-mapa { padding: 6px; }
+  .painel-mapa > #game-container { inset: 6px; }
+  .painel-titulo { font-size: 13px; margin-bottom: 4px; }
+  .paleta { gap: 6px; }
+  .bloco { min-height: 42px; font-size: 13px; padding: 5px 7px; gap: 6px; }
+  .bloco .bico { width: 26px; height: 26px; font-size: 17px; }
+  .sequencia { padding: 5px; gap: 6px; }
+  .sequencia .bloco { min-height: 42px; font-size: 13px; }
+  .area-programa { gap: 6px; }
+  .caixa-funcao { padding: 5px; }
+  .funcao-cabeca { font-size: 13px; padding: 0 2px 4px; }
+  .corpo { min-height: 40px; padding: 4px; }
+  .corpo:empty::after { padding: 8px 0; }
+  .seq-acoes { margin-top: 5px; }
+  .seq-acoes .btn-pequeno { min-height: 38px; min-width: 38px; font-size: 15px; padding: 4px 8px; }
+
+  .rodape { margin-top: 6px; gap: 8px; }
+  .btn-gigante { font-size: 20px; min-height: 46px; padding: 8px 18px; }
+  .btn-grande  { font-size: 15px; min-height: 44px; padding: 8px 12px; }
+  .btn-medio   { font-size: 15px; min-height: 44px; padding: 8px 14px; }
+  .btn-pequeno { font-size: 18px; min-height: 42px; min-width: 42px; padding: 6px 8px; }
+
+  .balao-bit { font-size: 14px; padding: 7px 12px; top: 6px; }
+
+  .logo-bit { width: 74px; height: 74px; }
+  .logo { font-size: 46px; -webkit-text-stroke-width: 4px; text-shadow: 0 5px 0 var(--contorno); }
+  .subtitulo { font-size: 15px; padding: 5px 14px; margin-bottom: 0; }
+  .menu-box { gap: 10px; }
+
+  .topo { margin-bottom: 8px; }
+  .topo h2 { font-size: 22px; }
+
+  .modal { padding: 16px 20px; gap: 10px; max-height: 96vh; }
+  .modal-titulo { font-size: 24px; }
+  .modal-bit { width: 64px; height: 64px; }
+  .cfg-linha { padding: 6px 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

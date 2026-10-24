@@ -124,7 +124,7 @@ export class Telemetria {
       });
     }));
 
-    cancelar.push(gm.on(EVENTOS.DICA_DISPONIVEL, () => {
+    cancelar.push(gm.on(EVENTOS.DICA_VISTA, () => {
       this.registrar(TIPO.DICA_USADA, { fase: this._faseAtual });
     }));
 

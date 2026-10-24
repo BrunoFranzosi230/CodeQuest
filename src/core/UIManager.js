@@ -11,6 +11,7 @@ import { criarTelaLogin } from '../ui/TelaLogin.js';
 import { criarTelaMenu, criarModalTutorial } from '../ui/TelaMenu.js';
 import { criarTelaMapa } from '../ui/TelaMapa.js';
 import { criarModalPause } from '../ui/ModalPause.js';
+import { criarModalConfig } from '../ui/ModalConfig.js';
 import { criarModalVitoria, chuvaDeConfete } from '../ui/ModalVitoria.js';
 
 export class UIManager {
@@ -67,7 +68,11 @@ export class UIManager {
     gm.on(EVENTOS.BIT_FALOU, ({ texto, ms }) => this._falar(texto, ms));
     gm.on(EVENTOS.CHAVE_COLETADA, () => this.hud?.setChaveColetada(true));
     gm.on(EVENTOS.BLOCO_EM_EXECUCAO, ({ bloco }) => this.painel.destacar(bloco));
-    gm.on(EVENTOS.DICA_DISPONIVEL, () => this.elDica?.classList.remove('escondido'));
+    gm.on(EVENTOS.DICA_DISPONIVEL, () => {
+      // depois de algumas tentativas a resposta libera: a lâmpada chama atenção
+      this.elDica?.classList.add('chamando');
+      this._falar('Quer ajuda? Toque na lâmpada 💡', 3500);
+    });
     gm.on(EVENTOS.FASE_CONCLUIDA, dados => this._mostrarVitoria(dados));
 
     gm.on(EVENTOS.EXECUCAO_INICIADA, () => {
@@ -182,6 +187,7 @@ export class UIManager {
       aoComoJogar: () => { this.som.clique(); this._abrirModal(criarModalTutorial({
         aoFechar: () => { this.som.clique(); this._fecharModais(); }
       })); },
+      aoConfig: () => this._abrirConfig(),
       aoSair: async () => {
         this.som.clique();
         this.auth.sair();
@@ -197,7 +203,7 @@ export class UIManager {
     // numa fase (GameplayScene) e volta para o tema ao sair dela.
     void this.som.tocarMusicaDoJogo();
     this.raiz.appendChild(criarTelaMapa(this.gm.storage, {
-      som: this.som,
+      aoConfig: () => this._abrirConfig(),
       aoVoltar: () => { this.som.clique(); this.gm.irParaMenu(); },
       aoEscolherFase: faseId => { this.som.clique(); this.gm.selecionarFase(faseId); }
     }));
@@ -234,8 +240,8 @@ export class UIManager {
           <button class="btn btn-pequeno btn-amarelo" data-acao="limpar" aria-label="Limpar programa">
             <span class="ico">🗑</span>
           </button>
-          <button class="btn btn-pequeno btn-roxo escondido" data-acao="dica" aria-label="Ver dica">
-            <span class="ico">💡</span>
+          <button class="btn btn-pequeno btn-roxo" data-acao="dica" aria-label="Pedir uma dica">
+            <span class="ico">💡</span> <span class="txt">Dica</span>
           </button>
         </div>
       </aside>`;
@@ -250,8 +256,8 @@ export class UIManager {
       <button class="btn btn-gigante btn-verde" data-acao="executar">
         <span class="ico">▶</span> EXECUTAR
       </button>
-      <button class="btn btn-grande btn-azul" data-acao="som" aria-label="Ligar/desligar som">
-        <span class="ico">${this.som.ligado ? '🔊' : '🔇'}</span>
+      <button class="btn btn-grande btn-roxo" data-acao="config" aria-label="Ajustes">
+        <span class="ico">⚙️</span>
       </button>`;
     tela.appendChild(rodape);
 
@@ -272,23 +278,20 @@ export class UIManager {
     this.elTruque  = palco.querySelector('.slot-truque');
 
     tela.querySelector('[data-acao="limpar"]').addEventListener('click', () => this.painel.limpar());
-    this.elDica.addEventListener('click', () => {
-      this.som.clique();
-      this._falar(`💡 ${this.gm.configFase?.dica || ''}`, 7000);
-    });
+    this.elDica.addEventListener('click', () => this._mostrarDica());
+    // tocar no balão fecha (dicas são longas e podem cobrir o tabuleiro)
+    this.elBalao.addEventListener('click', () => this.elBalao.classList.add('escondido'));
     rodape.querySelector('[data-acao="executar"]').addEventListener('click', () => this._executar());
     rodape.querySelector('[data-acao="reset"]').addEventListener('click', () => {
       this.som.clique();
       this.gm.emit(EVENTOS.PEDIDO_RESET, {});
     });
-    rodape.querySelector('[data-acao="som"]').addEventListener('click', e => {
-      e.currentTarget.querySelector('.ico').textContent = this.som.alternar() ? '🔊' : '🔇';
-    });
+    rodape.querySelector('[data-acao="config"]').addEventListener('click', () => this._abrirConfig());
   }
 
   _montarFase(config) {
     this.hud?.setFase(config);
-    this.elDica?.classList.add('escondido');
+    this.elDica?.classList.remove('chamando');
 
     /* Destrava a interface ao entrar na fase. Sem isto, sair no meio de uma
        execução (pausar → "Mapa" ou "Recomeçar") reiniciava a cena sem que
@@ -318,15 +321,35 @@ export class UIManager {
     this._ajustarCanvas();
   }
 
+  /** Mostra a próxima dica da fase no balão (ver Dicas.js). */
+  _mostrarDica() {
+    const dica = this.gm.pedirDica();
+    if (!dica) return;
+    this.som.clique();
+    if (dica.bloqueada) {
+      const n = dica.faltam;
+      this._falar(`🔒 A resposta aparece depois de mais ${n} ${n === 1 ? 'tentativa' : 'tentativas'}. Você consegue!`, 4500);
+      return;
+    }
+    this.elDica.classList.remove('chamando');
+    this._falar(`💡 Dica ${dica.nivel} de ${dica.total} · ${dica.titulo}: ${dica.texto}`, 10000);
+  }
+
   _travarBotoes(travar) {
-    this.raiz.querySelectorAll('.rodape .btn, [data-acao="limpar"]')
+    this.raiz.querySelectorAll('.rodape .btn:not([data-acao="config"]), [data-acao="limpar"]')
       .forEach(b => { b.disabled = travar; });
   }
 
   _falar(texto, ms = 3000) {
     if (!this.elBalao) return;
     clearTimeout(this._timerBalao);
-    this.elBalao.innerHTML = `<span class="balao-ico">🤖</span> ${texto}`;
+    const ico = document.createElement('span');
+    ico.className = 'balao-ico';
+    ico.textContent = '🤖';
+    const fala = document.createElement('span');
+    fala.className = 'balao-texto';
+    fala.textContent = texto;      // texto puro: nada vira HTML
+    this.elBalao.replaceChildren(ico, fala);
     this.elBalao.classList.remove('escondido');
     this._timerBalao = setTimeout(() => this.elBalao.classList.add('escondido'), ms);
   }
@@ -347,10 +370,24 @@ export class UIManager {
     this._overlay = null;
   }
 
+  /** Ajustes por cima de qualquer tela; ao fechar, volta para a pausa se veio dela. */
+  _abrirConfig() {
+    this.som.clique();
+    this._abrirModal(criarModalConfig({
+      som: this.som,
+      aoFechar: () => {
+        this.som.clique();
+        if (this.gm.appState === 'pausado') this._mostrarPause();
+        else this._fecharModais();
+      }
+    }));
+  }
+
   _mostrarPause() {
     this._abrirModal(criarModalPause({
       aoContinuar:    () => { this.som.clique(); this.gm.retomar(); },
       aoRecomecar:    () => { this.som.clique(); this.gm.selecionarFase(this.gm.faseAtual); },
+      aoConfig:       () => this._abrirConfig(),
       aoVoltarAoMapa: () => { this.som.clique(); this.gm.irParaMapa(); }
     }));
   }

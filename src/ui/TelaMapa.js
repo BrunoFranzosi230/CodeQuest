@@ -5,7 +5,7 @@
 
 import { MUNDOS, fasesDoMundo } from '../data/mundos.js';
 
-export function criarTelaMapa(storage, { aoVoltar, aoEscolherFase, som }) {
+export function criarTelaMapa(storage, { aoVoltar, aoEscolherFase, aoConfig }) {
   const tela = document.createElement('section');
   tela.className = 'tela tela-mapa';
   tela.innerHTML = `
@@ -15,19 +15,15 @@ export function criarTelaMapa(storage, { aoVoltar, aoEscolherFase, som }) {
       </button>
       <h2>Escolha uma aventura</h2>
       <div class="placar-estrelas"><span class="ico">⭐</span> ${storage.totalEstrelas()}</div>
-      <button class="btn btn-pequeno btn-azul" data-acao="som" aria-label="Ligar/desligar som">
-        <span class="ico">${som?.ligado === false ? '🔇' : '🔊'}</span>
+      <button class="btn btn-pequeno btn-roxo" data-acao="config" aria-label="Ajustes">
+        <span class="ico">⚙️</span>
       </button>
     </header>
     <div class="mundos"></div>`;
 
   tela.querySelector('[data-acao="voltar"]').addEventListener('click', aoVoltar);
 
-  const btnSom = tela.querySelector('[data-acao="som"]');
-  btnSom.addEventListener('click', e => {
-    const ligado = som ? som.alternar() : true;
-    e.currentTarget.querySelector('.ico').textContent = ligado ? '🔊' : '🔇';
-  });
+  tela.querySelector('[data-acao="config"]').addEventListener('click', aoConfig);
   const container = tela.querySelector('.mundos');
 
   MUNDOS.forEach(mundo => {

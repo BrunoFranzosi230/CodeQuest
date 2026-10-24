@@ -1,15 +1,29 @@
 /**
  * AudioManager.js
- * Todo o áudio do jogo é sintetizado em tempo real pela Web Audio API.
- * Zero arquivos, zero download, zero questão de licenciamento de assets.
+ * Efeitos sintetizados em tempo real pela Web Audio API; música de fundo por
+ * faixa gravada (quando existir) ou arpejo sintetizado. Volume por canal.
  */
 
 import { mundoPorId, MUSICA_TEMA } from '../data/mundos.js';
 
+const CHAVE_PREFS = 'codequest_audio';
+
+/**
+ * Dois canais com volume próprio, ajustáveis nas Configurações:
+ * a música (trilha do tema e dos mundos) e os efeitos (cliques, passos, vitória).
+ */
+export const CANAL = { MUSICA: 'musica', EFEITOS: 'efeitos' };
+
 export class AudioManager {
-  constructor() {
+  /** @param {{storage?: Storage|null}} [opcoes] onde guardar volume e mudo. */
+  constructor({ storage } = {}) {
     this.ctx = null;
-    this.ligado = true;
+    this._storage = storage !== undefined ? storage
+      : (typeof localStorage !== 'undefined' ? localStorage : null);
+    const prefs = this._lerPrefs();
+    this.ligado = prefs.ligado;
+    this._volumes = { [CANAL.MUSICA]: prefs.musica, [CANAL.EFEITOS]: prefs.efeitos };
+    this._canais = {};             // canal → GainNode ligado ao destino
     this._timerMusica = null;
     this._mundoAtual = 1;
     this._faixas = new Map();      // arquivo → AudioBuffer decodificado
@@ -50,8 +64,63 @@ export class AudioManager {
     eventos.forEach(ev => document.addEventListener(ev, destravar, true));
   }
 
+  // ── Volume e preferências ─────────────────────────────────────────────────
+
+  _lerPrefs() {
+    const padrao = { musica: 0.7, efeitos: 0.8, ligado: true };
+    try {
+      const p = JSON.parse(this._storage?.getItem(CHAVE_PREFS) ?? 'null');
+      if (!p || typeof p !== 'object') return padrao;
+      const vol = (v, d) => (typeof v === 'number' && v >= 0 && v <= 1 ? v : d);
+      return {
+        musica: vol(p.musica, padrao.musica),
+        efeitos: vol(p.efeitos, padrao.efeitos),
+        ligado: typeof p.ligado === 'boolean' ? p.ligado : true
+      };
+    } catch {
+      return padrao;
+    }
+  }
+
+  _salvarPrefs() {
+    try {
+      this._storage?.setItem(CHAVE_PREFS, JSON.stringify({
+        musica: this._volumes[CANAL.MUSICA],
+        efeitos: this._volumes[CANAL.EFEITOS],
+        ligado: this.ligado
+      }));
+    } catch { /* navegação anônima: vale só nesta sessão */ }
+  }
+
+  /** Nó de volume do canal, criado na primeira vez que o canal toca algo. */
+  _canal(canal) {
+    if (!this.ctx) return null;
+    if (!this._canais[canal]) {
+      const g = this.ctx.createGain();
+      g.gain.value = this._volumes[canal];
+      g.connect(this.ctx.destination);
+      this._canais[canal] = g;
+    }
+    return this._canais[canal];
+  }
+
+  /** Volume de 0 a 1 do canal (`CANAL.MUSICA` ou `CANAL.EFEITOS`). */
+  volume(canal) {
+    return this._volumes[canal];
+  }
+
+  definirVolume(canal, valor) {
+    if (!(canal in this._volumes)) return;
+    const v = Math.min(Math.max(Number(valor) || 0, 0), 1);
+    this._volumes[canal] = v;
+    if (this._canais[canal]) this._canais[canal].gain.value = v;
+    this._salvarPrefs();
+  }
+
+  // ── Síntese ───────────────────────────────────────────────────────────────
+
   /** Uma nota simples com envelope de ataque/decaimento. */
-  nota(freq, dur = 0.12, onda = 'square', vol = 0.18, atraso = 0) {
+  nota(freq, dur = 0.12, onda = 'square', vol = 0.18, atraso = 0, canal = CANAL.EFEITOS) {
     if (!this.ligado) return;
     const ctx = this._acordar();
     if (!ctx) return;
@@ -66,7 +135,7 @@ export class AudioManager {
     g.gain.linearRampToValueAtTime(vol, t + 0.012);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
 
-    osc.connect(g).connect(ctx.destination);
+    osc.connect(g).connect(this._canal(canal));
     osc.start(t);
     osc.stop(t + dur + 0.02);
   }
@@ -175,7 +244,7 @@ export class AudioManager {
     ganho.gain.setValueAtTime(0, ctx.currentTime);
     ganho.gain.linearRampToValueAtTime(volume, ctx.currentTime + 1.2);
 
-    fonte.connect(ganho).connect(ctx.destination);
+    fonte.connect(ganho).connect(this._canal(CANAL.MUSICA));
     fonte.start();
 
     this._faixaTocando = { fonte, ganho };
@@ -191,7 +260,7 @@ export class AudioManager {
       // antes do primeiro gesto o contexto está suspenso: agendar notas ali
       // as acumularia todas para tocar de uma vez quando destravar
       if (!this.ligado || this.ctx?.state !== 'running') return;
-      this.nota(musica.notas[i % musica.notas.length], 0.16, musica.onda, 0.035);
+      this.nota(musica.notas[i % musica.notas.length], 0.16, musica.onda, 0.035, 0, CANAL.MUSICA);
       i++;
     }, intervalo);
   }
@@ -217,7 +286,14 @@ export class AudioManager {
 
   /** Liga/desliga todo o áudio. Ao religar, retoma a trilha da tela atual. */
   alternar() {
-    this.ligado = !this.ligado;
+    return this.definirLigado(!this.ligado);
+  }
+
+  /** Liga ou desliga todo o áudio e lembra a escolha no aparelho. */
+  definirLigado(ligado) {
+    if (ligado === this.ligado) return this.ligado;
+    this.ligado = Boolean(ligado);
+    this._salvarPrefs();
     if (this.ligado) {
       this.clique();
       if (this._musica) void this._tocarTrilha(this._trilha, this._musica);
