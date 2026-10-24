@@ -125,6 +125,30 @@ describe('AudioManager', () => {
       vi.unstubAllGlobals();
     });
 
+    it('sem ninguém escutando o aviso, a faixa toca normalmente', async () => {
+      vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(8) })));
+      som.aoComecarFaixa = null;
+      await expect(som.tocarMusicaDoMundo(1)).resolves.toBeUndefined();
+      expect(som._faixaTocando).not.toBeNull();
+      vi.unstubAllGlobals();
+    });
+
+    it('silenciar durante o download: a faixa não toca e o crédito não aparece', async () => {
+      let liberar;
+      vi.stubGlobal('fetch', vi.fn(() => new Promise(r => { liberar = r; })));
+      const aviso = vi.fn();
+      som.aoComecarFaixa = aviso;
+
+      const tocando = som.tocarMusicaDoMundo(1);
+      som.definirLigado(false);
+      liberar({ ok: true, arrayBuffer: async () => new ArrayBuffer(8) });
+      await tocando;
+
+      expect(som._faixaTocando).toBeNull();
+      expect(aviso).not.toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    });
+
     it('arpejo de reserva não dispara o crédito da faixa', async () => {
       vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 404 })));
       const aviso = vi.fn();

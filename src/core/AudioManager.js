@@ -202,7 +202,7 @@ export class AudioManager {
       if (this._trilha !== chave || !this._tocando) return;   // trocou durante o download
       if (buffer) {
         this._tocarFaixa(buffer, musica.volume ?? 0.35);
-        if (this._faixaTocando) this.aoComecarFaixa?.(musica);
+        this.aoComecarFaixa?.(musica);
         return;
       }
     }
