@@ -46,7 +46,7 @@ export const MUNDOS = [
     id: 4, nome: 'Cidade Futurista', emoji: '🌆', conceito: 'Funções',
     css: '#F9A8D4',
     tema: { chao:0x5EEAD4, chaoAlt:0x99F6E4, borda:0x0F766E, parede:0x38BDF8, paredeEsc:0x0369A1 },
-    musica: { /* arquivo:'mundo4.mp3', volume:0.35, */ notas:[587,740,880,740,659,830,988,830], bpm:130, onda:'square' }
+    musica: { arquivo:'mundo4.mp3', volume:0.35, notas:[587,740,880,740,659,830,988,830], bpm:130, onda:'square' }
   }
 ];
 
