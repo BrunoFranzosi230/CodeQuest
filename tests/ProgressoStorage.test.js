@@ -118,6 +118,16 @@ describe('ProgressoStorage', () => {
       expect(p).not.toHaveProperty('admin');
     });
 
+    it('data válida é preservada (reconstruída no formato ISO)', () => {
+      localStorage.setItem(CHAVE, JSON.stringify({
+        fasesConcluidas: { 'mundo1-fase1': { estrelas: 3, menorNumeroBlocos: 4, concluidaEm: '2026-09-03T20:01:48.500Z' } },
+        ultimaFaseJogada: 'mundo1-fase1'
+      }));
+      const p = storage.carregar();
+      expect(p.fasesConcluidas['mundo1-fase1'].concluidaEm).toBe('2026-09-03T20:01:48.500Z');
+      expect(p.ultimaFaseJogada).toBe('mundo1-fase1');
+    });
+
     it('sem localStorage o jogo segue funcionando, apenas sem salvar', () => {
       const semStorage = new ProgressoStorage();
       semStorage.disponivel = false;
