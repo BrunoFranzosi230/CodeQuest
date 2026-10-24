@@ -8,6 +8,7 @@
  * Cada mundo tem um tema. O campo `musica` aceita duas formas:
  *
  *   arquivo: 'mundo1.mp3'   toca a faixa gravada em public/assets/audio/musica/
+ *   autor: 'Nome'          crédito exibido quando a faixa gravada começa
  *   notas/bpm/onda         arpejo sintetizado — o padrão enquanto não há faixa
  *
  * Os dois podem coexistir: se o arquivo faltar ou o navegador não suportar o
@@ -46,7 +47,7 @@ export const MUNDOS = [
     id: 4, nome: 'Cidade Futurista', emoji: '🌆', conceito: 'Funções',
     css: '#F9A8D4',
     tema: { chao:0x5EEAD4, chaoAlt:0x99F6E4, borda:0x0F766E, parede:0x38BDF8, paredeEsc:0x0369A1 },
-    musica: { arquivo:'mundo4.mp3', volume:0.35, notas:[587,740,880,740,659,830,988,830], bpm:130, onda:'square' }
+    musica: { arquivo:'mundo4.mp3', volume:0.35, autor:'Richie Locker', notas:[587,740,880,740,659,830,988,830], bpm:130, onda:'square' }
   }
 ];
 

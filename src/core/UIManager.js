@@ -28,6 +28,7 @@ export class UIManager {
     this.som = som;
     this.auth = auth;
     this._aplicarUsuario = aplicarUsuario ?? (async () => {});
+    this.som.aoComecarFaixa = musica => this._mostrarCredito(musica);
     this.raiz = document.getElementById('ui-overlay');
     this.containerJogo = document.getElementById('game-container');
     this.app = document.getElementById('app');
@@ -319,6 +320,20 @@ export class UIManager {
     this.hud?.setEstrelas(total === 0 ? 3 : this.gm.calcularEstrelas(total));
     // no layout em faixas o painel de blocos cresce e encolhe o do tabuleiro
     this._ajustarCanvas();
+  }
+
+  /** Crédito discreto da faixa gravada, embaixo do tabuleiro; some sozinho. */
+  _mostrarCredito(musica) {
+    const painel = musica?.autor && this.raiz.querySelector('.painel-mapa');
+    if (!painel) return;
+    painel.querySelector('.credito-musica')?.remove();
+    const el = document.createElement('div');
+    el.className = 'credito-musica';
+    el.textContent = `♪ Composto por ${musica.autor}`;
+    painel.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('visivel'));
+    setTimeout(() => el.classList.remove('visivel'), 5000);
+    setTimeout(() => el.remove(), 5800);
   }
 
   /** Mostra a próxima dica da fase no balão (ver Dicas.js). */
