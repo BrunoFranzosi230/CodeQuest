@@ -220,7 +220,7 @@ export class AudioManager {
     this.ligado = !this.ligado;
     if (this.ligado) {
       this.clique();
-      if (this._musica) this._tocarTrilha(this._trilha, this._musica);
+      if (this._musica) void this._tocarTrilha(this._trilha, this._musica);
     } else {
       this.pararMusica();
     }

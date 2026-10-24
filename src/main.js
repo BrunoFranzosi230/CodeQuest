@@ -117,7 +117,7 @@ gm.on(EVENTOS.ESTADO_MUDOU, ({ novoEstado }) => {
 // Sessão lembrada de uma visita anterior: entra direto, sem passar pelo login.
 // Roda de forma síncrona até o primeiro `await`, então `gm.usuario` já está
 // definido quando a MenuScene decide entre login e menu.
-if (auth.usuario) aplicarUsuario(auth.usuario);
+if (auth.usuario) void aplicarUsuario(auth.usuario);
 
 /** Porta de entrada única da cena de jogo — ver a nota acima. */
 gm.on(EVENTOS.SELECIONAR_FASE, () => {
@@ -135,10 +135,12 @@ window.telemetria = telemetria;
 
 if (import.meta.env.DEV) {
   Object.assign(window, { jogo, gm, som, ui, auth });
-  import('./dev/testarFases.js').then(({ testarFases }) => {
-    window.testarFases = testarFases;
-    console.info('[dev] `testarFases()` valida as 14 fases · `telemetria.resumo()` mostra as métricas da sessão');
-  });
+  import('./dev/testarFases.js')
+    .then(({ testarFases }) => {
+      window.testarFases = testarFases;
+      console.info('[dev] `testarFases()` valida as 14 fases · `telemetria.resumo()` mostra as métricas da sessão');
+    })
+    .catch(e => console.warn('[dev] testarFases indisponível.', e));
 }
 
 // Sem isto, cada hot-reload cria um Phaser.Game novo sem destruir o anterior:

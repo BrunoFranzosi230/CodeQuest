@@ -5,10 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Mínimo no nível do workflow; quem publica ganha escrita só no próprio job.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # Uma publicação por vez; não cancela a que já está em andamento
 concurrency:
@@ -27,7 +26,7 @@ jobs:
           cache: npm
 
       - name: Instalar dependências
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # Portão de qualidade: nada vai para produção sem passar no lint e nos
       # testes. É o que impede publicar uma fase impossível de resolver.
@@ -45,8 +44,6 @@ jobs:
           VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
           VITE_API_URL: ${{ vars.VITE_API_URL }}
 
-      - uses: actions/configure-pages@v6
-
       - uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
@@ -54,6 +51,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write      # publicar no GitHub Pages
+      id-token: write   # o deploy-pages se autentica via OIDC
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

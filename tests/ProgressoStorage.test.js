@@ -98,6 +98,26 @@ describe('ProgressoStorage', () => {
       expect(p.versao).toBe(1);
     });
 
+    it('dados de fora são higienizados: fase inexistente, estrelas fora de 0–3, campos estranhos', () => {
+      localStorage.setItem(CHAVE, JSON.stringify({
+        fasesConcluidas: {
+          'mundo1-fase1': { estrelas: 99, menorNumeroBlocos: 4, concluidaEm: 'ontem', extra: '<script>' },
+          'mundo1-fase2': { estrelas: '2', menorNumeroBlocos: -3 },
+          'fase-inventada': { estrelas: 3 },
+          'constructor': { estrelas: 3 }
+        },
+        ultimaFaseJogada: '<img onerror=alert(1)>',
+        admin: true
+      }));
+      const p = storage.carregar();
+
+      expect(Object.keys(p.fasesConcluidas)).toEqual(['mundo1-fase1', 'mundo1-fase2']);
+      expect(p.fasesConcluidas['mundo1-fase1']).toEqual({ estrelas: 3, menorNumeroBlocos: 4, concluidaEm: null });
+      expect(p.fasesConcluidas['mundo1-fase2']).toEqual({ estrelas: 2, menorNumeroBlocos: null, concluidaEm: null });
+      expect(p.ultimaFaseJogada).toBeNull();
+      expect(p).not.toHaveProperty('admin');
+    });
+
     it('sem localStorage o jogo segue funcionando, apenas sem salvar', () => {
       const semStorage = new ProgressoStorage();
       semStorage.disponivel = false;
