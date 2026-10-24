@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { AudioManager } from '../src/core/AudioManager.js';
+import { AudioManager, CANAL } from '../src/core/AudioManager.js';
 import { MUNDOS, MUSICA_TEMA } from '../src/data/mundos.js';
 
 /** AudioContext de mentira: registra o que foi tocado, sem emitir som. */
@@ -40,7 +40,7 @@ describe('AudioManager', () => {
 
   beforeEach(() => {
     ctx = contextoFalso();
-    som = new AudioManager();
+    som = new AudioManager({ storage: null });
     som.ctx = ctx;                    // já "acordado", sem tocar em Web Audio real
     vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
@@ -253,8 +253,64 @@ describe('AudioManager', () => {
     });
   });
 
+  describe('volume por canal e preferências', () => {
+    /** localStorage de mentira, para ver o que é lembrado entre visitas. */
+    const memoria = (inicial = {}) => {
+      const dados = { ...inicial };
+      return { getItem: k => dados[k] ?? null, setItem: (k, v) => { dados[k] = v; }, dados };
+    };
+
+    it('começa com volumes padrão e som ligado', () => {
+      const s = new AudioManager({ storage: memoria() });
+      expect(s.volume(CANAL.MUSICA)).toBeGreaterThan(0);
+      expect(s.volume(CANAL.EFEITOS)).toBeGreaterThan(0);
+      expect(s.ligado).toBe(true);
+    });
+
+    it('música e efeitos têm canais separados', () => {
+      som.definirVolume(CANAL.MUSICA, 0.2);
+      som.definirVolume(CANAL.EFEITOS, 0.9);
+      som.clique();
+      expect(som._canais[CANAL.EFEITOS].gain.value).toBe(0.9);
+      expect(som._canal(CANAL.MUSICA).gain.value).toBe(0.2);
+    });
+
+    it('mudar o volume com o canal já tocando aplica na hora', () => {
+      som.clique();
+      som.definirVolume(CANAL.EFEITOS, 0.3);
+      expect(som._canais[CANAL.EFEITOS].gain.value).toBe(0.3);
+    });
+
+    it('volume fica entre 0 e 1', () => {
+      som.definirVolume(CANAL.MUSICA, 7);
+      expect(som.volume(CANAL.MUSICA)).toBe(1);
+      som.definirVolume(CANAL.MUSICA, -2);
+      expect(som.volume(CANAL.MUSICA)).toBe(0);
+    });
+
+    it('lembra volume e mudo na próxima visita', () => {
+      const armazenamento = memoria();
+      const a = new AudioManager({ storage: armazenamento });
+      a.ctx = ctx;
+      a.definirVolume(CANAL.MUSICA, 0.25);
+      a.definirLigado(false);
+
+      const b = new AudioManager({ storage: armazenamento });
+      expect(b.volume(CANAL.MUSICA)).toBe(0.25);
+      expect(b.ligado).toBe(false);
+    });
+
+    it('preferência corrompida não quebra: volta ao padrão', () => {
+      const s = new AudioManager({ storage: memoria({ codequest_audio: '{lixo' }) });
+      expect(s.ligado).toBe(true);
+      const t = new AudioManager({ storage: memoria({ codequest_audio: JSON.stringify({ musica: 50, ligado: 'sim' }) }) });
+      expect(t.volume(CANAL.MUSICA)).toBeLessThanOrEqual(1);
+      expect(t.ligado).toBe(true);
+    });
+  });
+
   it('sem Web Audio no navegador, o jogo segue sem som', () => {
-    const semAudio = new AudioManager();
+    const semAudio = new AudioManager({ storage: null });
     semAudio.ctx = null;
     vi.stubGlobal('AudioContext', undefined);
     vi.stubGlobal('webkitAudioContext', undefined);

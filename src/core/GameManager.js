@@ -6,6 +6,7 @@
 
 import { ProgressoStorage } from '../data/ProgressoStorage.js';
 import { ORDEM_FASES } from '../data/mundos.js';
+import { dicasDaFase } from './Dicas.js';
 
 /** @typedef {'login'|'menu'|'mapa'|'jogando'|'pausado'|'vitoria'} AppState */
 
@@ -26,11 +27,12 @@ export const EVENTOS = {
   FASE_CONCLUIDA:      'FASE_CONCLUIDA',
   FASE_FALHOU:         'FASE_FALHOU',
   DICA_DISPONIVEL:     'DICA_DISPONIVEL',
+  DICA_VISTA:          'DICA_VISTA',
   BIT_FALOU:           'BIT_FALOU'
 };
 
-/** Tentativas falhas antes de oferecer a dica (GDD 4.5). */
-const FALHAS_ATE_DICA = 3;
+/** Tentativas falhas antes de liberar a dica com a resposta (GDD 4.5). */
+export const FALHAS_ATE_DICA = 3;
 
 export class GameManager {
   constructor() {
@@ -43,6 +45,7 @@ export class GameManager {
     this.configFase = null;
     this.tentativasFalhas = 0;
     this.dicaDisponivel = false;
+    this.nivelDica = 0;
     this.storage = new ProgressoStorage();
     this._listeners = {};
   }
@@ -114,6 +117,27 @@ export class GameManager {
   resetTentativas() {
     this.tentativasFalhas = 0;
     this.dicaDisponivel = false;
+    this.nivelDica = 0;
+  }
+
+  /**
+   * Próxima dica da fase (ver Dicas.js). Cada pedido avança um nível; no
+   * último, repete. A resposta só sai depois de FALHAS_ATE_DICA tentativas —
+   * antes disso volta `{ bloqueada, faltam }`.
+   * @returns {{nivel, total, titulo, texto, resposta?}|{bloqueada: true, faltam: number, nivel, total}|null}
+   */
+  pedirDica() {
+    const dicas = dicasDaFase(this.configFase);
+    if (!dicas.length) return null;
+
+    const nivel = Math.min(this.nivelDica + 1, dicas.length);
+    const dica = dicas[nivel - 1];
+    if (dica.resposta && !this.dicaDisponivel) {
+      return { bloqueada: true, faltam: FALHAS_ATE_DICA - this.tentativasFalhas, nivel, total: dicas.length };
+    }
+    this.nivelDica = nivel;
+    this.emit(EVENTOS.DICA_VISTA, { nivel, fase: this.faseAtual });
+    return { ...dica, total: dicas.length };
   }
 
   registrarFalha(motivo) {

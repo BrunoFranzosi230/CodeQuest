@@ -5,7 +5,7 @@
 
 import { svgBit } from './svgBit.js';
 
-export function criarTelaMenu({ aoJogar, aoComoJogar, aoSair, usuario }) {
+export function criarTelaMenu({ aoJogar, aoComoJogar, aoConfig, aoSair, usuario }) {
   const tela = document.createElement('section');
   tela.className = 'tela tela-menu';
 
@@ -24,6 +24,9 @@ export function criarTelaMenu({ aoJogar, aoComoJogar, aoSair, usuario }) {
         <button class="btn btn-medio btn-azul" data-acao="ajuda">
           <span class="ico">❓</span> Como jogar
         </button>
+        <button class="btn btn-medio btn-roxo" data-acao="config">
+          <span class="ico">⚙️</span> Ajustes
+        </button>
         <button class="btn btn-medio btn-vermelho" data-acao="sair">
           <span class="ico">${ehConvidado ? '🔑' : '🚪'}</span> ${ehConvidado ? 'Entrar' : 'Sair'}
         </button>
@@ -33,6 +36,7 @@ export function criarTelaMenu({ aoJogar, aoComoJogar, aoSair, usuario }) {
 
   tela.querySelector('[data-acao="jogar"]').addEventListener('click', aoJogar);
   tela.querySelector('[data-acao="ajuda"]').addEventListener('click', aoComoJogar);
+  tela.querySelector('[data-acao="config"]').addEventListener('click', aoConfig);
   tela.querySelector('[data-acao="sair"]').addEventListener('click', aoSair);
   return tela;
 }

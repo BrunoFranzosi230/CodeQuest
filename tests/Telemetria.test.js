@@ -166,7 +166,7 @@ describe('Telemetria', () => {
 
       gm.emit(EVENTOS.FASE_CARREGADA, { config: { id: 'mundo1-fase1', mundo: 1 } });
       gm.emit(EVENTOS.FASE_FALHOU, { motivo: 'colisao' });
-      gm.emit(EVENTOS.DICA_DISPONIVEL, { dica: 'x' });
+      gm.emit(EVENTOS.DICA_VISTA, { nivel: 1 });
       tempo.avancar(30_000);
       gm.emit(EVENTOS.FASE_CONCLUIDA, { faseId: 'mundo1-fase1', estrelas: 3, blocosUsados: 4 });
 

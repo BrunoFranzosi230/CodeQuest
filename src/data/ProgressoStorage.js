@@ -89,7 +89,9 @@ export class ProgressoStorage {
       fases[id] = !atual ? f : {
         estrelas: Math.max(atual.estrelas ?? 0, f.estrelas ?? 0),
         menorNumeroBlocos: Math.min(atual.menorNumeroBlocos ?? Infinity, f.menorNumeroBlocos ?? Infinity),
-        concluidaEm: [atual.concluidaEm, f.concluidaEm].filter(Boolean).sort().pop() ?? null
+        // datas ISO 8601: a ordem de texto é a ordem cronológica
+        concluidaEm: [atual.concluidaEm, f.concluidaEm].filter(Boolean)
+          .sort((x, y) => x.localeCompare(y)).pop() ?? null
       };
     }
     return {
@@ -145,13 +147,34 @@ export class ProgressoStorage {
       });
   }
 
-
-  /** Migra progressos de versões antigas do schema. */
+  /**
+   * Migra progressos de versões antigas do schema e higieniza o que veio de
+   * fora (nuvem ou localStorage): só passam fases que existem, com estrelas
+   * 0–3 e números válidos. Monta um objeto novo — campo desconhecido não entra.
+   */
   _migrar(dados) {
     if (!dados || typeof dados !== 'object') return this.vazio();
-    if (!dados.fasesConcluidas) dados.fasesConcluidas = {};
-    dados.versao = VERSAO_SCHEMA;
-    return dados;
+
+    const fasesConcluidas = {};
+    for (const id of ORDEM_FASES) {
+      const f = dados.fasesConcluidas?.[id];
+      if (!f || typeof f !== 'object') continue;
+      const estrelas = Number(f.estrelas);
+      const blocos = Number(f.menorNumeroBlocos);
+      const data = typeof f.concluidaEm === 'string' && !Number.isNaN(Date.parse(f.concluidaEm))
+        ? f.concluidaEm : null;
+      fasesConcluidas[id] = {
+        estrelas: Number.isInteger(estrelas) ? Math.min(Math.max(estrelas, 0), 3) : 0,
+        menorNumeroBlocos: Number.isInteger(blocos) && blocos > 0 ? blocos : null,
+        concluidaEm: data
+      };
+    }
+
+    return {
+      versao: VERSAO_SCHEMA,
+      fasesConcluidas,
+      ultimaFaseJogada: ORDEM_FASES.includes(dados.ultimaFaseJogada) ? dados.ultimaFaseJogada : null
+    };
   }
 
   /**

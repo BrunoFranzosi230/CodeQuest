@@ -29,6 +29,7 @@ export default defineConfig({
         'src/core/Telemetria.js',
         'src/core/AudioManager.js',
         'src/core/AuthManager.js',
+        'src/core/Dicas.js',
         'src/data/**/*.js'
       ],
       // config.js só lê variáveis de ambiente; nada a testar.

@@ -1,11 +1,11 @@
 /**
  * ModalPause.js
- * Menu de pausa: continuar, recomeçar a fase ou voltar ao mapa (GDD 6.1).
+ * Menu de pausa: continuar, recomeçar a fase, ajustes ou voltar ao mapa (GDD 6.1).
  */
 
 import { svgBit } from './svgBit.js';
 
-export function criarModalPause({ aoContinuar, aoRecomecar, aoVoltarAoMapa }) {
+export function criarModalPause({ aoContinuar, aoRecomecar, aoConfig, aoVoltarAoMapa }) {
   const modal = document.createElement('div');
   modal.className = 'modal';
   modal.innerHTML = `
@@ -18,6 +18,9 @@ export function criarModalPause({ aoContinuar, aoRecomecar, aoVoltarAoMapa }) {
       <button class="btn btn-medio btn-amarelo" data-acao="recomecar">
         <span class="ico">↺</span> Recomeçar
       </button>
+      <button class="btn btn-medio btn-roxo" data-acao="config">
+        <span class="ico">⚙️</span> Ajustes
+      </button>
       <button class="btn btn-medio btn-vermelho" data-acao="mapa">
         <span class="ico">🗺</span> Mapa
       </button>
@@ -25,6 +28,7 @@ export function criarModalPause({ aoContinuar, aoRecomecar, aoVoltarAoMapa }) {
 
   modal.querySelector('[data-acao="continuar"]').addEventListener('click', aoContinuar);
   modal.querySelector('[data-acao="recomecar"]').addEventListener('click', aoRecomecar);
+  modal.querySelector('[data-acao="config"]').addEventListener('click', aoConfig);
   modal.querySelector('[data-acao="mapa"]').addEventListener('click', aoVoltarAoMapa);
   return modal;
 }

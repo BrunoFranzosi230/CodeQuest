@@ -30,7 +30,7 @@ jobs:
           cache: npm
 
       - name: Instalar dependências
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Análise estática (ESLint)
         run: npm run lint
@@ -62,7 +62,7 @@ jobs:
       # Só roda depois de configurar sonar-project.properties e o segredo SONAR_TOKEN
       - name: SonarCloud
         if: env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarqube-scan-action@v8
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4  # v8.2.2
 
   build:
     name: Build de produção
@@ -76,7 +76,7 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm run build
 
       - name: Guardar build
