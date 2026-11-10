@@ -51,6 +51,22 @@ telemetria.exportar()   // JSON para anexar ao relatório de playtest
 
 ---
 
+## Monitoramento (Grafana)
+
+Painel que mostra se o banco de dados (PostgreSQL na AWS) está no ar, além do
+uso do jogo (fases concluídas, estrelas), sem dados pessoais. Ele se conecta
+com um usuário somente leitura.
+
+```bash
+cd observabilidade/grafana
+docker compose up -d      # http://localhost:3000
+```
+
+Como rodar local e como publicar na web (Grafana Cloud):
+[observabilidade/grafana/LEIA-ME.md](observabilidade/grafana/LEIA-ME.md).
+
+---
+
 ## Estrutura
 
 ```

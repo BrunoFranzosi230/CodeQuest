@@ -2,6 +2,9 @@
 # O backend roda na AWS (API Gateway + Lambda + RDS) e não sobe para cá.
 aws/
 
+# Monitoramento (Grafana) roda fora da Vercel
+observabilidade/
+
 # Ferramentas de desenvolvimento, testes e relatórios — não entram no build
 scripts/
 tests/

@@ -1,0 +1,19 @@
+# Conexão do Grafana com o PostgreSQL do CodeQuest (Amazon RDS, sa-east-1).
+# Usuário somente leitura criado por scripts/setup-grafana-db.mjs.
+apiVersion: 1
+datasources:
+  - name: CodeQuest · PostgreSQL (RDS)
+    uid: codequest-postgres
+    type: grafana-postgresql-datasource
+    url: codequest-db.cvcqy260styi.sa-east-1.rds.amazonaws.com:5432
+    user: grafana_leitor
+    isDefault: true
+    jsonData:
+      database: codequest
+      sslmode: require
+      postgresVersion: 1500
+      maxOpenConns: 2
+      maxIdleConns: 1
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: $GRAFANA_DB_PASSWORD
