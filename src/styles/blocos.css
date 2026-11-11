@@ -1,7 +1,7 @@
 /* =========================================================
    blocos.css — paleta de blocos e editor de sequência
    Regra do redesign: nenhum elemento interativo abaixo de 48px.
-   Substitui o GDD 7.5 — ver docs/GDD-DIFF.md §2.4
+   Ver docs/GDD.md §7.5 e docs/DECISOES.md §6
    ========================================================= */
 
 .paleta {

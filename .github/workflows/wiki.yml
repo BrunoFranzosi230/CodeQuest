@@ -1,0 +1,62 @@
+name: Publicar a Wiki
+
+# A pasta docs/ é a fonte da documentação. Este workflow copia as páginas para
+# a Wiki do repositório a cada mudança na main.
+#
+# A Wiki precisa existir: crie a primeira página pelo site uma única vez
+# (aba Wiki → "Create the first page" → Save). Depois disso é automático.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/wiki.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # a Wiki é um repositório git ligado a este
+
+concurrency:
+  group: wiki
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Clonar a Wiki
+        id: clonar
+        run: |
+          if git clone "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git" wiki; then
+            echo "existe=sim" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::A Wiki ainda não foi criada. Abra a aba Wiki, salve a primeira página e rode este workflow de novo."
+          fi
+
+      - name: Copiar docs/ para a Wiki
+        if: steps.clonar.outputs.existe == 'sim'
+        run: |
+          find wiki -maxdepth 1 -name '*.md' -delete
+          cp docs/*.md wiki/
+          # Na Wiki as páginas se referenciam sem a extensão .md
+          sed -i -E 's/\]\(([A-Za-z0-9_-]+)\.md(#[^)]*)?\)/](\1\2)/g' wiki/*.md
+
+      - name: Enviar
+        if: steps.clonar.outputs.existe == 'sim'
+        working-directory: wiki
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Wiki já está atualizada."
+          else
+            git commit -m "Atualiza a Wiki a partir de docs/ (${GITHUB_SHA::7})"
+            git push
+          fi

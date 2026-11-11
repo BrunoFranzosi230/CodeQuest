@@ -16,6 +16,7 @@
  */
 
 import pg from 'pg';
+import { sslRds } from './ssl-rds.mjs';
 
 const {
   PGHOST,
@@ -67,7 +68,7 @@ const cliente = new pg.Client({
   database: PGDATABASE,
   user: PGUSER,
   password: PGPASSWORD,
-  ssl: { rejectUnauthorized: false }   // task administrativa pontual
+  ssl: sslRds
 });
 
 try {
