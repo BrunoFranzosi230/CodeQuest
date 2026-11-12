@@ -16,6 +16,7 @@
  */
 
 import pg from 'pg';
+import { sslRds } from './ssl-rds.mjs';
 
 const {
   PGHOST, PGPORT = '5432', PGDATABASE = 'codequest', PGUSER = 'postgres', PGPASSWORD,
@@ -32,7 +33,7 @@ const U = ident(GRAFANA_DB_USER);
 
 const cliente = new pg.Client({
   host: PGHOST, port: Number(PGPORT), database: PGDATABASE,
-  user: PGUSER, password: PGPASSWORD, ssl: { rejectUnauthorized: false }
+  user: PGUSER, password: PGPASSWORD, ssl: sslRds
 });
 
 try {

@@ -30,7 +30,9 @@ export default defineConfig({
         'src/core/AudioManager.js',
         'src/core/AuthManager.js',
         'src/core/Dicas.js',
-        'src/data/**/*.js'
+        'src/data/**/*.js',
+        // backend: as regras da Lambda (o index.mjs só liga Google e banco)
+        'aws/lambda-progresso/handler.mjs'
       ],
       // config.js só lê variáveis de ambiente; nada a testar.
       exclude: ['src/config.js'],

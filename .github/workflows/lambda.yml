@@ -1,0 +1,77 @@
+name: Deploy da Lambda (backend)
+
+# Publica a função de progresso na AWS quando o código dela muda na main.
+# Precisa dos segredos AWS_ACCESS_KEY_ID e AWS_SECRET_ACCESS_KEY (usuário IAM
+# com permissão só de lambda:UpdateFunctionCode nesta função). Sem eles, o
+# deploy é pulado — ver docs/AWS.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'aws/lambda-progresso/**'
+      - 'tests/lambda.test.js'
+      - '.github/workflows/lambda.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lambda
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Testar, empacotar e publicar
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: sa-east-1
+      FUNCAO: codequest-progresso
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      # Portão de qualidade: o backend não sobe se os testes dele falharem.
+      - name: Instalar dependências de teste
+        run: npm ci --ignore-scripts
+
+      - name: Análise estática
+        run: npm run lint
+
+      - name: Testes do backend
+        run: npx vitest run tests/lambda.test.js
+
+      - name: Empacotar
+        working-directory: aws/lambda-progresso
+        run: |
+          npm ci --omit=dev --ignore-scripts
+          zip -qr lambda-progresso.zip index.mjs handler.mjs sa-east-1-bundle.pem package.json node_modules
+
+      - name: Guardar o pacote
+        uses: actions/upload-artifact@v7
+        with:
+          name: lambda-progresso
+          path: aws/lambda-progresso/lambda-progresso.zip
+          retention-days: 14
+
+      - name: Publicar na AWS
+        if: env.AWS_ACCESS_KEY_ID != ''
+        working-directory: aws/lambda-progresso
+        run: |
+          aws lambda update-function-code \
+            --function-name "$FUNCAO" \
+            --zip-file fileb://lambda-progresso.zip \
+            --query 'LastUpdateStatus' --output text
+          aws lambda wait function-updated --function-name "$FUNCAO"
+
+      - name: Aviso — segredos da AWS ausentes
+        if: env.AWS_ACCESS_KEY_ID == ''
+        run: echo "::warning::AWS_ACCESS_KEY_ID não configurado; o pacote foi gerado, mas não publicado."

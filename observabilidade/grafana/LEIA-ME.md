@@ -52,6 +52,14 @@ Para desligar: `docker compose down`.
    | Password | valor de `GRAFANA_DB_PASSWORD` no `.env.local` |
    | TLS/SSL Mode | `require` |
    | Version | `15+` |
+   | Connection limits → Max open | `2` |
+   | Connection limits → Max idle | `1` |
+   | Connection limits → Max lifetime | `14400` |
+
+   > **Não pule os limites de conexão.** O `grafana_leitor` aceita no máximo 5
+   > conexões ao mesmo tempo. Sem esse ajuste, o Grafana Cloud abre uma por
+   > painel, o banco recusa as que passam de 5 e vários painéis aparecem com
+   > erro (inclusive "Fora do ar") a cada atualização.
 
    Clique em **Save & test**. Deve aparecer *Database Connection OK*.
 3. **Dashboards → New → Import → Upload dashboard JSON file** → escolha
